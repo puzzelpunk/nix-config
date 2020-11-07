@@ -2,7 +2,7 @@
 
 if [[ -n "$1" ]];
 then
-  _conf_path="$HOME/_unixconf/nix/systems/$1/configuration.nix"
+  _conf_path="$HOME/_unixconf_nix/systems/$1/configuration.nix"
 
   if [[ -e "$_conf_path" ]];
   then

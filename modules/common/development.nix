@@ -29,14 +29,14 @@ in {
       VISUAL = "code";
     };
 
-    home-manager.users."${cfg.username}" = mkMerge [
-      {
-        programs.git = {
-          enable = true;
-          userName = cfg.username;
-          userEmail = cfg.useremail;
-        };
-      }
-    ];
+    # home-manager.users."${cfg.username}" = mkMerge [
+    #   {
+    #     programs.git = {
+    #       enable = true;
+    #       userName = cfg.username;
+    #       userEmail = cfg.useremail;
+    #     };
+    #   }
+    # ];
   };
 }

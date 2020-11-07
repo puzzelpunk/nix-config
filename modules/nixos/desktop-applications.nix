@@ -25,7 +25,6 @@ let
     vscodium
     # network files
     qbittorrent
-    python37Packages.syncthing-gtk
     # office
     libreoffice
     typora
@@ -37,7 +36,7 @@ let
     spotify
     rhythmbox
     kazam
-    libsForQt5.vlc
+    vlc
     obs-studio
     # networking
     charles3
@@ -45,6 +44,5 @@ let
     linssid
     # social
     discord
-    rambox-pro
   ];
 in { config = { environment.systemPackages = Packages; }; }

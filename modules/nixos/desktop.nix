@@ -32,9 +32,8 @@ in {
       layout = "us";
 
       windowManager.bspwm.enable = true;
-      displayManager.lightdm.enable = true;
-      desktopManager.lxqt.enable = true;
-      desktopManager.xfce4-14.enable = true;
+      displayManager.gdm.enable = true;
+      desktopManager.gnome3.enable = true;
     };
   };
 }

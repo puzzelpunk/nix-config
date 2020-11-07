@@ -9,7 +9,7 @@ let
 in
 {
   imports = [
-    ./home-manager-init.nix
+    # ./home-manager-init.nix
     ./shell.nix 
     ./fonts.nix
     ./locale.nix
@@ -64,30 +64,30 @@ in
       }
     ];
 
-    home-manager.users."${cfg.username}" = mkMerge [
-      {
-        home.file.dotfiles = {
-          source = ../../dotfiles;
-          target = "./";
-          recursive = true;
-        };
-      }
-      # TODO: This won't work in darwin for some reason.
-      # {
-      #   programs.chromium = {
-      #     enable = true;
-      #     package = pkgs.brave;
-      #     extensions = [
-      #       "eimadpbcbfnmbkopoojfekhnkhdbieeh" # dark reader
-      #       "gppongmhjkpfnbhagpmjfkannfbllamg" # wappalyzer
-      #       "jpcmhcelnjdmblfmjabdeclccemkghj" # view image
-      #       "fngmhnnpilhplaeedifhccceomclgfbg" # edit this cookie
-      #       "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # privacy badger
-      #       "gpldannlkkicofjolkffchkpbcpioecc" # color picker
-      #       "cjpalhdlnbpafiamejdnhcphjbkeiagm" # uBlock Origin
-      #     ];
-      #   };
-      # }
-    ];
+   # home-manager.users."${cfg.username}" = mkMerge [
+   #   {
+   #     home.file.dotfiles = {
+   #       source = "/home/${cfg.username}/dotfiles";
+   #       target = "./";
+   #       recursive = true;
+   #     };
+   #   }
+   #   # TODO: This won't work in darwin for some reason.
+   #   # {
+   #   #   programs.chromium = {
+   #   #     enable = true;
+   #   #     package = pkgs.brave;
+   #   #     extensions = [
+   #   #       "eimadpbcbfnmbkopoojfekhnkhdbieeh" # dark reader
+   #   #       "gppongmhjkpfnbhagpmjfkannfbllamg" # wappalyzer
+   #   #       "jpcmhcelnjdmblfmjabdeclccemkghj" # view image
+   #   #       "fngmhnnpilhplaeedifhccceomclgfbg" # edit this cookie
+   #   #       "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # privacy badger
+   #   #       "gpldannlkkicofjolkffchkpbcpioecc" # color picker
+   #   #       "cjpalhdlnbpafiamejdnhcphjbkeiagm" # uBlock Origin
+   #   #     ];
+   #   #   };
+   #   # }
+   # ];
   };
 }

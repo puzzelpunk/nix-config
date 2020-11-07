@@ -24,7 +24,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   services.fstrim.enable = true; # ssd harddrives
-  hardware.cpu.amd.updateMicrocode = true; # intel cpus
+  hardware.cpu.amd.updateMicrocode = true; # amd cpus
 
   hardware.enableRedistributableFirmware = true;
 }

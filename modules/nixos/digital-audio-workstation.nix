@@ -15,7 +15,7 @@ let
   Packages = with pkgs; [
     a2jmidid
     alsaLib
-    airwave
+    # airwave
     bitwig-studio
     musescore
     patchage
@@ -73,7 +73,7 @@ in {
     ];
 
     services = {
-      thermald.enable = true;
+      # thermald.enable = true;
       udev = {
         extraRules = ''
           KERNEL=="rtc0", GROUP="audio"
