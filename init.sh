@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DIR=`cd $(dirname "${BASH_SOURCE[0]}") && pwd`
-TIMSTAMP=`date | tr -s " " "-"`
+TIMESTAMP=`date | tr -s " " "-"`
 
 if [[ ! -n "$1" ]];
 then
@@ -21,14 +21,14 @@ echo "Building configuration in $CONF"
 if [[ `uname` == "Darwin" ]];
 then
   mkdir -p $HOME/.nixpkgs
-  sudo cp -P $HOME/.nixpkgs/darwin-configuration.nix $HOME/.nixpkgs/darwin-configuration.nix.bak_${TIMSTAMP}
+  sudo cp -P $HOME/.nixpkgs/darwin-configuration.nix $HOME/.nixpkgs/darwin-configuration.nix.bak_${TIMESTAMP}
   sudo ln -sf $CONF $HOME/.nixpkgs/darwin-configuration.nix
   darwin-rebuild switch
 fi
 
 if [[ `uname` == "Linux" ]];
 then
-  sudo cp -P /etc/nixos/configuration.nix /etc/nixos/configuration.nix.bak_${TIMSTAMP}
+  sudo cp -P /etc/nixos/configuration.nix /etc/nixos/configuration.nix.bak_${TIMESTAMP}
   sudo ln -sf $CONF /etc/nixos/configuration.nix
   sudo nixos-rebuild switch
 fi
