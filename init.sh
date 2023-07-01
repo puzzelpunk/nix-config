@@ -16,8 +16,6 @@ then
   exit 1
 fi
 
-echo "Initializing configuration in $CONF. Run nixos-rebuild switch to activate."
-
 if [[ `uname` == "Darwin" ]];
 then
   mkdir -p $HOME/.nixpkgs
