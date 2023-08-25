@@ -3,7 +3,7 @@ with lib;
 let
   # Functions [ getDir files ] taken from
   # https://github.com/Infinisil/system/blob/master/config/new-modules/default.nix
-  dotfiles = import ./../../../utils/dotfiles.nix;
+  dotfiles = import ./../../utils/dotfiles.nix;
 in {
   imports = [ ./modules.nix ];
 
