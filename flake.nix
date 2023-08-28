@@ -1,5 +1,5 @@
 {
-  description = "nixos-desktop";
+  description = "nix-configurations";
 
    inputs = {
     agenix.inputs.nixpkgs.follows = "nixpkgs";
@@ -8,12 +8,17 @@
     home-manager.url = "github:nix-community/home-manager";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     nix-darwin.url = "github:LnL7/nix-darwin";
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, agenix, ... }@inputs: 
+  outputs = { self, nixpkgs, nix-darwin, agenix, home-manager, ... }@inputs: 
   let 
-    globalModules = [ ./modules/global/global.nix ];
+    globalModules = [ 
+      { 
+        system.configurationRevision = self.rev or self.dirtyRev or null; 
+      }
+      ./modules/global/global.nix 
+    ];
     globalModulesNixos = globalModules ++ [ 
       ./modules/global/nixos.nix
       home-manager.nixosModules.default

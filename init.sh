@@ -2,7 +2,6 @@
 DIR=`cd $(dirname "${BASH_SOURCE[0]}") && pwd`
 TIMESTAMP=`date | tr -s " " "-"`
 CONF="$DIR/flake.nix"
-DARWIN_TARGET_DIR="$HOME/.config/nix-darwin"
 NIXOS_TARGET_DIR="/etc/nixos/"
 
 if [[ ! -n "$1" ]];
@@ -21,13 +20,11 @@ fi
 if [[ `uname` == "Darwin" ]];
 then
   sudo scutil --set HostName $1
-  echo -e "Move $DIR to $DARWIN_TARGET_DIR"
-  echo ""
-  echo "Then you can run:"
-  echo "nix --extra-experimental-features \"nix-command flakes\" run nix-darwin -- switch --flake ~/.config/nix-darwin"
+  echo "Run:"
+  echo "nix --extra-experimental-features \"nix-command flakes\" run nix-darwin -- switch --flake $DIR"
   echo ""
   echo "And then:"
-  echo "darwin-rebuild switch --flake ~/.config/nix-darwin"
+  echo "darwin-rebuild switch --flake $DIR"
 fi
 
 if [[ `uname` == "Linux" ]];
