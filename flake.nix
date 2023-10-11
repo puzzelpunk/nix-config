@@ -32,10 +32,10 @@
   in
   {
     nixosConfigurations = {
-      snowshuriken = nixpkgs.lib.nixosSystem {
+      icyvortex = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = globalModulesNixos
-          ++ [ ./hosts/snowshuriken/configuration.nix ];
+          ++ [ ./hosts/icyvortex/configuration.nix ];
       };
       homeserver = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
