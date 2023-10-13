@@ -26,7 +26,7 @@
   imports = [ ./modules.nix ./options.nix ];
 
   config = {
-    boot.kernelPackages = pkgs.linuxPackages_latest;
+    boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
 
     # Boot configuration
     boot.kernelModules = [ 
@@ -42,9 +42,10 @@
       options kvm ignore_msrs=1
     '';
 
-    # ENVIRONMENT VARIABLES FOR SCRIPTS
-    environment.variables.PASSTHROUGH_GPU_VIDEO = config.cfg.vfio.passthrough.gpu_video;
-    environment.variables.PASSTHROUGH_GPU_AUDIO = config.cfg.vfio.passthrough.gpu_audio;
+    # TODO: make gpu passthrough stuff more configurable
+    # # ENVIRONMENT VARIABLES FOR SCRIPTS
+    # environment.variables.PASSTHROUGH_GPU_VIDEO = config.cfg.vfio.passthrough.gpu_video;
+    # environment.variables.PASSTHROUGH_GPU_AUDIO = config.cfg.vfio.passthrough.gpu_audio;
 
     # VFIO Packages installed
     environment.systemPackages = with pkgs; [
@@ -100,6 +101,8 @@
       };
     };
 
+    
+    # TODO: make gpu passthrough stuff more configurable
     # Add binaries to path so that hooks can use it
     systemd.services.libvirtd.path = 
       let env = pkgs.buildEnv {
@@ -114,6 +117,7 @@
         ];
       }; in [ env ];
 
+    # TODO: make gpu passthrough stuff more configurable
     # # Link hooks to the correct directory
     # system.activationScripts.libvirt-hooks.text =
     #   "ln -Tfs /etc/libvirt/hooks /var/lib/libvirt/hooks";
@@ -140,6 +144,7 @@
     #   };
     # };
 
+    # TODO: make gpu passthrough stuff more configurable
     # Prevent sleep on libvirt hook execution
     systemd.services."libvirt-nosleep@" = {
       unitConfig.Description = ''Preventing sleep while libvirt domain "%i" is running'';
