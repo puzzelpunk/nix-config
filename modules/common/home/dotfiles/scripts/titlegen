@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-figlet $@ | sed -E 's/^/#\ /g'

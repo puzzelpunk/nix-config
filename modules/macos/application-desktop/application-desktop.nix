@@ -4,12 +4,12 @@
   config.homebrew.casks = [        
     "appcleaner"
     "balenaetcher"
+    "balenaetcher"
     "bitwig-studio"
-    "blender"
+    # "blender"
     "brave-browser"
     "charles"
     "chromium"
-    "cold-turkey-blocker"
     "contexts"
     "darktable"
     "dash"
@@ -44,5 +44,6 @@
     "vlc"
     "wireshark"
     "zenmap"
+    "adobe-creative-cloud"
   ];
 }
