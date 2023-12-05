@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+speedtest-cli ; echo -e "\nSpeedtest Complete . . ." ; sleep 60

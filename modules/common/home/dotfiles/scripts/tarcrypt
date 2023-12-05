@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+if [[ -z "$1" ]];
+then
+  echo ""
+  echo "Description:"
+  echo "Archives and encrypts a directory or file."
+  echo "Names the archive with a timestamp appended."
+  echo "Makes the archive immutable via chattr."
+  echo ""
+  echo "Usage:"
+  echo "To encrypt: tarcrypt --encrypt /dir/or/file"
+  echo "To decrypt: tarcrypt --decrypt /path/to/file.tar.gz.gpg"
+  exit 1
+fi
+
+if [[ ! -e "$2" ]];
+then
+  echo "Provided file does not exist or was spelled incorrectly."
+  exit 1
+fi
+
+extension=".tar.gz.gpg"
+timestamp=$(date +%m_%d_%Y_%H:%M:%S)
+
+if [[ "$1" == "--decrypt" ]];
+then
+  savename=$(increment_name $(base_name $2))
+  mkdir $savename
+  gpg -d $2 | tar xzvf - -C $savename --strip-components=1
+elif [[ "$1" == "--encrypt" ]];
+then
+  savename="${2}_${timestamp}${extension}"
+  tar czvpf - $2 | gpg --symmetric --cipher-algo aes256 -o $savename
+  [[ "$?" -eq "0" ]] && sudo chattr +i $savename
+fi
+   
+exit 0
