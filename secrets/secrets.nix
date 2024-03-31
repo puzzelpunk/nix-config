@@ -1,7 +1,7 @@
 let 
   main = builtins.readFile ../_/id_rsa.pub;
   borgbackup = builtins.readFile ../_/id_rsa.borgbackup.pub;
-  glitchtip = builtins.readFile ../_/id_rsa.glitchtip.pub
+  glitchtip = builtins.readFile ../_/id_rsa.glitchtip.pub;
 in {
   "cf_account_id".publicKeys = [ main ];
   "cf_api_token".publicKeys = [ main ];
