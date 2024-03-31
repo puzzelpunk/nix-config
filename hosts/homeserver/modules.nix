@@ -22,7 +22,6 @@
     ./modules/docker-swag.nix
     # ./modules/docker-vscode.nix
     # ./modules/docker-copilot-chatgpt.nix
-    ./modules/docker-glitchtip.nix
     ./modules/docker-gpt4free.nix
     ./modules/docker.nix
     ./modules/filesystems.nix
