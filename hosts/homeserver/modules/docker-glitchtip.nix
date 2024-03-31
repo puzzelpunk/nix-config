@@ -2,7 +2,7 @@
 let
   DATABASE_URL = "postgres://postgres:postgres@postgres:5432/postgres";
   SECRET_KEY = "`cat ${config.age.secrets.glitchtip_key.path}`";
-  PORT = 8000;
+  PORT = "8000";
   # Example smtp://email:password@smtp_url:port https://glitchtip.com/documentation/install#configuration
   EMAIL_URL = "consolemail://";
   GLITCHTIP_DOMAIN = "https://glitchtip.cameron.computer";
