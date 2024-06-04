@@ -2,6 +2,7 @@
   config.homebrew.taps = [];
 
 
+  config.homebrew.brews = [ "colima" "docker" "docker-compose" ];
   config.homebrew.casks = [        
     "appcleaner"
     "balenaetcher"
