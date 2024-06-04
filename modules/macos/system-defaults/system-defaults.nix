@@ -25,7 +25,7 @@
     orientation = "left";
   };
   system.defaults.finder = {
-    CreateDesktop = false;
+    CreateDesktop = true;
     AppleShowAllExtensions = true;
     FXEnableExtensionChangeWarning = false;
     QuitMenuItem = true;
