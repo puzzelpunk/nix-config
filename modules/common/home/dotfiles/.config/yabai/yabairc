@@ -1,18 +1,12 @@
 /usr/bin/sudo /opt/homebrew/bin/yabai --load-sa
 
-# border
-/opt/homebrew/bin/yabai -m config window_border                on
-/opt/homebrew/bin/yabai -m config window_border_width          8
-/opt/homebrew/bin/yabai -m config window_border_radius         12
-/opt/homebrew/bin/yabai -m config window_border_blur           off
-
 # gaps
 /opt/homebrew/bin/yabai -m config layout                       bsp
-/opt/homebrew/bin/yabai -m config top_padding                  8
-/opt/homebrew/bin/yabai -m config bottom_padding               8
-/opt/homebrew/bin/yabai -m config left_padding                 8
-/opt/homebrew/bin/yabai -m config right_padding                8
-/opt/homebrew/bin/yabai -m config window_gap                   8
+/opt/homebrew/bin/yabai -m config top_padding                  12
+/opt/homebrew/bin/yabai -m config bottom_padding               12
+/opt/homebrew/bin/yabai -m config left_padding                 12
+/opt/homebrew/bin/yabai -m config right_padding                12
+/opt/homebrew/bin/yabai -m config window_gap                   12
 
 # window appearance
 /opt/homebrew/bin/yabai -m config window_opacity               off
@@ -34,8 +28,7 @@ then
   C5=$(echo $color5 | sed 's/#//')
   C6=$(echo $color6 | sed 's/#//')
 
-  /opt/homebrew/bin/yabai -m config active_window_border_color   0xff$C4
-  /opt/homebrew/bin/yabai -m config normal_window_border_color   0xff$CB
+  borders active_color=0xff$C4 inactive_color=0xff$CB width=8 &
 fi
 
 # window placement
@@ -55,17 +48,12 @@ $HOME/scripts/yabaictl create_workspaces
 
 # rules
 /opt/homebrew/bin/yabai -m rule --add app="^Adobe Creative Cloud$" manage=off
-/opt/homebrew/bin/yabai -m rule --add app="^Backblaze$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^balenaEtcher$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^Calculator$" manage=off
-/opt/homebrew/bin/yabai -m rule --add app="^Contexts$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^Dash$" manage=off
-/opt/homebrew/bin/yabai -m rule --add app="^Flux$" manage=off
-/opt/homebrew/bin/yabai -m rule --add app="^Focus$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^HandBrake$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^Karabiner-Elements$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^Little Snitch$" manage=off
-/opt/homebrew/bin/yabai -m rule --add app="^nextcloud$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^QuickTime Player$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^Stickies$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^System Preferences$" manage=off
@@ -73,11 +61,8 @@ $HOME/scripts/yabaictl create_workspaces
 /opt/homebrew/bin/yabai -m rule --add app="^The Unarchiver$" manage=off
 /opt/homebrew/bin/yabai -m rule --add app="^VLC$" manage=off
 
-/opt/homebrew/bin/yabai -m rule --add app="^Typora$" manage=on
-/opt/homebrew/bin/yabai -m rule --add app="^Typora$" sticky=off
-
 /opt/homebrew/bin/yabai -m rule --add app="Slack$" space=6
-/opt/homebrew/bin/yabai -m rule --add app="Microsoft Teams$" space=6
+/opt/homebrew/bin/yabai -m rule --add app="Microsoft Teams (work or school)$" space=6
 /opt/homebrew/bin/yabai -m rule --add app="Calendar$" space=5
 /opt/homebrew/bin/yabai -m rule --add app="Mail$" space=5
 
