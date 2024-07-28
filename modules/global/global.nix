@@ -6,11 +6,11 @@ with lib;
   # this is a string path to a private key used to decrypt agenix secrets
   # i can't commit this private key and don't want to put private key in the nix store
   # so this is the workaround for now
+  # nix.package = pkgs.nixUnstable; # Flakes will automatically use the latest version of nixpkgs
   age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/REPO/_/id_rsa" ];
   environment.systemPackages = with pkgs; [ nixfmt git vim age ];
   environment.variables.LANG = config.cfg.localization.lang;
   networking.hostName = config.cfg.os.hostname;
-  nix.package = pkgs.nixUnstable;
   nix.settings.auto-optimise-store = true;
   nix.settings.experimental-features = "nix-command flakes";
   nixpkgs.config.allowUnfree = true;

@@ -42,7 +42,7 @@ in {
         ripgrep # search _ rust alt - find + grep # https://github.com/BurntSushi/ripgrep
 
         bat # shell _ rust alt - cat & less # https://github.com/sharkdp/bat
-        exa # shell _ rust alt - ls # https://github.com/ogham/exa
+        eza # shell _ rust alt - ls # https://github.com/ogham/exa
         zoxide # shell _ rust alt - cd # https://github.com/ajeetdsouza/zoxide
       
         neofetch # system info
@@ -62,7 +62,7 @@ in {
         curl # file transfer
         rsync # file transfer and sync
         wget # file transfer
-        youtube-dl # file transfer and downloader downloader
+        yt-dlp # file transfer and downloader downloader
         lftp # file transfer
       
         pandoc # multimedia

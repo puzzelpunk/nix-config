@@ -34,7 +34,7 @@ with lib;
     cd = ''z'';
     clearhistory = ''cat /dev/null > $HOME/.zsh_history ; exit'';
     less = ''${pkgs.bat}/bin/bat'';
-    ls = ''${pkgs.exa}/bin/exa --icons -h'';
+    ls = ''${pkgs.eza}/bin/eza --icons -h'';
     lsip = ''${pkgs.curl}/bin/curl http://ipecho.net/plain; echo'';
     lsnetwork = ''clear ; sudo ${pkgs.nmap}/bin/nmap -sS -T aggressive 192.168.0.0/24 | less'';
     lsports = ''clear ; ${pkgs.nmap}/bin/nmap -sS -T aggressive localhost'';
