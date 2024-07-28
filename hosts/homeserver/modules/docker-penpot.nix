@@ -1,55 +1,113 @@
 { config, lib, pkgs, options, ... }:
 with lib;
 let 
+  PENPOT_ROOT = "/Volumes/Server/docker/penpot/";
+  DEFAULT_ENV = {
+    PUID = "1000";
+    PGID = "996";
+    TZ = "America/Chicago";
+  };
   PENPOT_ENV = {
-    ## Should be set to the public domain where penpot is going to be served.
+    ## Relevant flags for backend:
+    ## - demo-users
+    ## - email-verification
+    ## - log-emails
+    ## - log-invitation-tokens
+    ## - login-with-github
+    ## - login-with-gitlab
+    ## - login-with-google
+    ## - login-with-ldap
+    ## - login-with-oidc
+    ## - login-with-password
+    ## - registration
+    ## - secure-session-cookies
+    ## - smtp
+    ## - smtp-debug
+    ## - telemetry
+    ## - webhooks
+    ## - prepl-server
     ##
-    ## NOTE: If you are going to serve it under different domain than
-    ## 'localhost' without HTTPS, consider setting the
-    ## `disable-secure-session-cookies' flag on the 'PENPOT_FLAGS'
-    ## setting.
+    ## You can read more about all available flags and other
+    ## environment variables for the backend here:
+    ## https://help.penpot.app/technical-guide/configuration/#advanced-configuration
+    PENPOT_FLAGS = "enable-login enable-login-with-password";
+    # PENPOT_FLAGS = "enable-registration enable-login-with-password disable-email-verification enable-smtp enable-prepl-server";
 
-    PENPOT_PUBLIC_URI = "http://localhost:9001";
-    PENPOT_TENANT = "pro";
+    ## Penpot SECRET KEY. It serves as a master key from which other keys for subsystems
+    ## (eg http sessions, or invitations) are derived.
+    ##
+    ## If you leve it commented, all created sessions and invitations will
+    ## become invalid on container restart.
+    ##
+    ## If you going to uncomment this, we recommend use here a trully randomly generated
+    ## 512 bits base64 encoded string.  You can generate one with:
+    ##
+    ## python3 -c "import secrets; print(secrets.token_urlsafe(64))"
 
-    ## Feature flags.
+    # - PENPOT_SECRET_KEY=my-insecure-key
 
-    PENPOT_FLAGS = "enable-login disable-secure-session-cookies";
+    ## The PREPL host. Mainly used for external programatic access to penpot backend
+    ## (example: admin). By default it listen on `localhost` but if you are going to use
+    ## the `admin`, you will need to uncomment this and set the host to `0.0.0.0`.
 
-    ## Temporal workaround because of bad builtin default
+    # - PENPOT_PREPL_HOST=0.0.0.0
 
-    PENPOT_HTTP_SERVER_HOST = "0.0.0.0";
+    ## Public URI. If you are going to expose this instance to the internet and use it
+    ## under different domain than 'localhost', you will need to adjust it to the final
+    ## domain.
+    ##
+    ## Consider using traefik and set the 'disable-secure-session-cookies' if you are
+    ## not going to serve penpot under HTTPS.
 
-    ## Standard database connection parameters (only postgresql is supported):
+    PENPOT_PUBLIC_URI = "https://penpot.cameron.computer";
+
+    ## Database connection parameters. Don't touch them unless you are using custom
+    ## postgresql connection parameters.
 
     PENPOT_DATABASE_URI = "postgresql://penpot-postgres/penpot";
     PENPOT_DATABASE_USERNAME = "penpot";
     PENPOT_DATABASE_PASSWORD = "penpot";
 
-    ## Redis is used for the websockets notifications.
+    ## Redis is used for the websockets notifications. Don't touch unless the redis
+    ## container has different parameters or different name.
 
     PENPOT_REDIS_URI = "redis://penpot-redis/0";
 
-    ## By default, files uploaded by users are stored in local
-    ## filesystem. But it can be configured to store in AWS S3.
+    ## Default configuration for assets storage: using filesystem based with all files
+    ## stored in a docker volume.
 
     PENPOT_ASSETS_STORAGE_BACKEND= "assets-fs";
     PENPOT_STORAGE_ASSETS_FS_DIRECTORY = "/opt/data/assets";
 
-    ## Telemetry. When enabled, a periodical process will send anonymous
-    ## data about this instance. Telemetry data will enable us to learn on
-    ## how the application is used, based on real scenarios. If you want
-    ## to help us, please leave it enabled.
+    ## Also can be configured to to use a S3 compatible storage
+    ## service like MiniIO. Look below for minio service setup.
+
+    # - AWS_ACCESS_KEY_ID=<KEY_ID>
+    # - AWS_SECRET_ACCESS_KEY=<ACCESS_KEY>
+    # - PENPOT_ASSETS_STORAGE_BACKEND=assets-s3
+    # - PENPOT_STORAGE_ASSETS_S3_ENDPOINT=http://penpot-minio:9000
+    # - PENPOT_STORAGE_ASSETS_S3_BUCKET=<BUKET_NAME>
+
+    ## Telemetry. When enabled, a periodical process will send anonymous data about this
+    ## instance. Telemetry data will enable us to learn on how the application is used,
+    ## based on real scenarios. If you want to help us, please leave it enabled. You can
+    ## audit what data we send with the code available on github
 
     PENPOT_TELEMETRY_ENABLED = "true";
 
-    ## Email sending configuration. By default, emails are printed in the
-    ## console, but for production usage is recommended to setup a real
-    ## SMTP provider. Emails are used to confirm user registrations.
+    ## Example SMTP/Email configuration. By default, emails are sent to the mailcatch
+    ## service, but for production usage is recommended to setup a real SMTP
+    ## provider. Emails are used to confirm user registrations & invitations. Look below
+    ## how mailcatch service is configured.
 
-    PENPOT_SMTP_ENABLED = "false";
     PENPOT_SMTP_DEFAULT_FROM = "no-reply@example.com";
     PENPOT_SMTP_DEFAULT_REPLY_TO = "no-reply@example.com";
+    PENPOT_SMTP_HOST = "penpot-mailcatch";
+    # PENPOT_SMTP_PORT=1025
+    # PENPOT_SMTP_USERNAME=
+    # PENPOT_SMTP_PASSWORD=
+    # PENPOT_SMTP_TLS=false
+    # PENPOT_SMTP_SSL=false
   }; 
   in 
 {
@@ -57,72 +115,52 @@ let
     virtualisation.oci-containers.containers = {
       penpot-frontend = {
         image = "penpotapp/frontend:latest";
-        ports = [ 
-          "${config.cfg.networking.static.ip_address}:9001:80" 
-        ];
-        volumes = [ "/Volumes/Server/docker/penpot/penpot_assets_data:/opt/data" ];
-        environment = mkMerge [ PENPOT_ENV {
-          PUID = "1000";
-          PGID = "996";
-          TZ = "America/Chicago";
-        }];
+        ports = [ "${config.cfg.networking.static.ip_address}:9001:80" ];
+        volumes = [ "${PENPOT_ROOT}/penpot_assets_data:/opt/data/assets" ];
+        environment = mkMerge [ PENPOT_ENV DEFAULT_ENV ];
         extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
-        dependsOn = [ 
-          "penpot-backend" 
-          "penpot-exporter" 
-        ];
+        dependsOn = [ "penpot-backend" "penpot-exporter" ];
       };
 
       penpot-backend = {
         image = "penpotapp/backend:latest";
-        volumes = [ "/Volumes/Server/docker/penpot/penpot_assets_data:/opt/data" ];
-        environment = mkMerge [ PENPOT_ENV {
-          PUID = "1000";
-          PGID = "996";
-          TZ = "America/Chicago";
-        }];
+        volumes = [ "${PENPOT_ROOT}/penpot_assets_data:/opt/data/assets" ];
+        environment = mkMerge [ PENPOT_ENV DEFAULT_ENV ];
         extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
-        dependsOn = [ 
-          "penpot-postgres" 
-          "penpot-redis" 
-        ];
+        dependsOn = [ "penpot-postgres" "penpot-redis" ];
       };
 
       penpot-exporter = {
         image = "penpotapp/exporter:latest";
-        environment = mkMerge [ PENPOT_ENV {
-          PUID = "1000";
-          PGID = "996";
-          TZ = "America/Chicago";
+        environment = mkMerge [ PENPOT_ENV DEFAULT_ENV {
           PENPOT_PUBLIC_URI = mkForce "http://penpot-frontend";
         }];
         extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
       };
 
       penpot-postgres = {
-        image = "postgres:13";
-        environment = mkMerge [ PENPOT_ENV {
-          PUID = "1000";
-          PGID = "996";
-          TZ = "America/Chicago";
+        image = "postgres:15";
+        environment = mkMerge [ PENPOT_ENV DEFAULT_ENV {
           POSTGRES_INITDB_ARGS = "--data-checksums";
           POSTGRES_DB = "penpot";
           POSTGRES_USER = "penpot";
           POSTGRES_PASSWORD = "penpot";
         }];
         extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
-        volumes = [ "/Volumes/Server/docker/penpot/penpot_postgres_data:/var/lib/postgresql/data" ];
+        volumes = [ "${PENPOT_ROOT}/penpot_postgres_data:/var/lib/postgresql/data" ];
       };
 
       penpot-redis = {
-        image = "redis:6";
-        environment = {
-          PUID = "1000";
-          PGID = "996";
-          TZ = "America/Chicago";
-        };
+        image = "redis:7";
+        environment = DEFAULT_ENV;
         extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
       };
+
+      penpot-mailcatch = {
+        image = "sj26/mailcatcher:latest";
+        ports = [ "1025:1025" "1080:1080" ];
+        extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
+      };      
     };
 
     # networking.firewall.allowedTCPPorts = [

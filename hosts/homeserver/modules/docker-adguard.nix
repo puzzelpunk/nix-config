@@ -29,7 +29,9 @@
           PGID = "996";
           TZ = "America/Chicago";
         };
-        extraOptions = [ "--network=host" ];
+        extraOptions = [ 
+	  "--network=host" 
+	];
       };
     };
 

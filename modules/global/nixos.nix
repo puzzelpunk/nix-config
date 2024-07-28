@@ -8,4 +8,5 @@
   security.allowUserNamespaces = true;
   system.stateVersion = config.cfg.os.version;
   users.mutableUsers = true;
+  
 }

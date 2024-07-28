@@ -1,8 +1,8 @@
 { config, lib, pkgs, options, ... }: {
   config = {
     age.secrets = {
-      nextcloud_mysql_password.file = ../../../../secrets/nextcloud_mysql_password.age;
-      nextcloud_mysql_root_password.file = ../../../../secrets/nextcloud_mysql_root_password.age;
+      nextcloud_mysql_password.file = ../../../secrets/nextcloud_mysql_password.age;
+      nextcloud_mysql_root_password.file = ../../../secrets/nextcloud_mysql_root_password.age;
     };
 
     systemd.services.docker-nextcloud_db.preStart = '' 
@@ -49,7 +49,9 @@
           MYSQL_USER = "nextcloud_db";
         };
         environmentFiles = [ /Volumes/Server/docker/nextcloud/.env.secret ];
-        extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
+        extraOptions = [ 
+	  "--network=${config.cfg.docker.networking.dockernet}" 
+	];
       };
     };
   };

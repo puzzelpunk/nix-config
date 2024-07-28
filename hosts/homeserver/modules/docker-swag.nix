@@ -1,10 +1,10 @@
 { config, lib, pkgs, options, ... }: {
   config = {
     age.secrets = {
-      cf_account_id.file = ../../../../secrets/cf_account_id.age;
-      cf_api_token.file = ../../../../secrets/cf_api_token.age;
-      cf_tunnel_password.file = ../../../../secrets/cf_tunnel_password.age;
-      cf_zone_id.file = ../../../../secrets/cf_zone_id.age;
+      cf_account_id.file = ../../../secrets/cf_account_id.age;
+      cf_api_token.file = ../../../secrets/cf_api_token.age;
+      cf_tunnel_password.file = ../../../secrets/cf_tunnel_password.age;
+      cf_zone_id.file = ../../../secrets/cf_zone_id.age;
     };
 
     systemd.services.docker-swag.preStart = '' 
@@ -21,7 +21,7 @@
       echo "CF_ZONE_ID=$CF_ZONE_ID" >> $ENV_FILE
 
       chmod 600 $ENV_FILE
-      chown root.root $ENV_FILE
+      chown root:root $ENV_FILE
     '';
 
     virtualisation.oci-containers.containers = {
@@ -60,7 +60,9 @@
           CONTAINERS = "1";
           POST = "0"; 
         };
-        extraOptions = [ "--network=${config.cfg.docker.networking.dockernet}" ];
+        extraOptions = [ 
+	  "--network=${config.cfg.docker.networking.dockernet}" 
+	];
       };
     };
 

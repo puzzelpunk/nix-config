@@ -1,7 +1,7 @@
 { config, lib, pkgs, options, ... }: {
   config = {
     age.secrets = {
-      vscode_hashed_password.file = ../../../../secrets/vscode_hashed_password.age;
+      vscode_hashed_password.file = ../../../secrets/vscode_hashed_password.age;
     };
 
     systemd.services.docker-code-server.preStart = '' 

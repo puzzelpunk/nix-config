@@ -12,23 +12,30 @@
 
     Cameron = {
       path = "/Volumes/Storage/Cameron";
-      "valid users" = ''"cameron"'';
-      "force user" = ''"cameron"'';
-      "force group" = ''"cameron"'';
+       "valid users" = ''"cameron"'';
+       "force user" = ''"cameron"'';
+       "force group" = ''"cameron"'';
     };
 
     Rae = {
-      path = "/Volumes/Storage/Rae";
-      "valid users" = ''"rae","cameron"'';
-      "force user" = ''"cameron"'';
-      "force group" = ''"cameron"'';
+     path = "/Volumes/Storage/Rae";
+       "valid users" = ''"rae","cameron"'';
+       "force user" = ''"cameron"'';
+       "force group" = ''"cameron"'';
     };
 
-    Work = {
-      path = "/Volumes/Storage/Work";
-      "valid users" = ''"work","cameron"'';
-      "force user" = ''"work"'';
-      "force group" = ''"work"'';
+    VSTs = {
+      path = "/Volumes/Storage/VSTs";
+       "valid users" = ''"cameron"'';
+       "force user" = ''"cameron"'';
+       "force group" = ''"cameron"'';
     };
+
+    # MNT = {
+    #   path = "/mnt";
+    #    "valid users" = ''"cameron"'';
+    #    "force user" = ''"cameron"'';
+    #    "force group" = ''"cameron"'';
+    # };
   };
 }

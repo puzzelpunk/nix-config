@@ -1,6 +1,3 @@
-[submodule "modules/common/dotfiles/.dotfiles"]
-	path = modules/common/dotfiles/.dotfiles
-	url = git@github.com:computercam/_unixconf_dotfiles.git
 [submodule "_"]
 	path = _
 	url = https://gitea.cameron.computer/cameron/_.git

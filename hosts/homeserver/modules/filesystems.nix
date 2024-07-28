@@ -6,15 +6,9 @@
 
     fileSystems = {
       Backup = {
-        device = "/dev/disk/by-label/BACKUP";
+        device = "zpool_BACKUP";
         mountPoint = "/Volumes/Backup";
-        fsType = "ext4";
-      };
-
-      BulkStorage = {
-        device = "/dev/disk/by-label/BULK_STORAGE";
-        mountPoint = "/Volumes/BulkStorage";
-        fsType = "ext4";
+        fsType = "zfs";
       };
 
       Server = {
@@ -24,9 +18,9 @@
       };
 
       Storage = {
-        device = "/dev/disk/by-label/STORAGE";
+        device = "zpool_STORAGE";
         mountPoint = "/Volumes/Storage";
-        fsType = "ext4";
+        fsType = "zfs";
       };
 
       TimeMachine = {

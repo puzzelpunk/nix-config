@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+grep -e "\." <<< $1 | sed -E "s/^[^.]*\././"

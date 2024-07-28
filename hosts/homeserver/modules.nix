@@ -1,7 +1,7 @@
 { config, pkgs, ... }: {
   imports = [
     ../../modules/common/home/home.nix
-    ../../modules/common/fonts/fonts.nix
+    # ../../modules/common/fonts/fonts.nix
 
     ../../modules/nixos/service-avahi/service-avahi.nix
     ../../modules/nixos/service-cron/service-cron.nix

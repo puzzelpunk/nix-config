@@ -2,7 +2,11 @@
 with lib;
 {
   imports = [ ./options.nix ];
-  age.identityPaths = [ ../../_/id_rsa ];
+  # TODO: probably a better way of referencing this.
+  # this is a string path to a private key used to decrypt agenix secrets
+  # i can't commit this private key and don't want to put private key in the nix store
+  # so this is the workaround for now
+  age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa" ];
   environment.systemPackages = with pkgs; [ nixfmt git vim age ];
   environment.variables.LANG = config.cfg.localization.lang;
   networking.hostName = config.cfg.os.hostname;

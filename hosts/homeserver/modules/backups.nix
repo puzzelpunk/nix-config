@@ -6,7 +6,6 @@ let
   # remoteBackupPort = "23";
   # remoteBackupRoot = "ssh://${remoteBackupUser}@${remoteBackupHost}:${remoteBackupPort}/./Backup/BorgBackup";
   localBackupRoot = "/Volumes/Backup/BorgBackup";
-  localRedundantBackupRoot = "/Volumes/BulkStorage/BorgBackup";
 
   defaults = {
     encryption.mode = "repokey";
@@ -15,12 +14,27 @@ let
     persistentTimer = true;
     appendFailedSuffix = false;
     exclude = [ "re:^.*\.sync/" ];
-    environment.BORG_RSH = ''ssh -i ${builtins.toString (./../../../../_ + "/id_rsa.borgbackup")}'';
+    # environment.BORG_RSH = ''ssh -i /home/cameron/_unixconf_nix/_/id_rsa.borgbackup'';
+    environment.BORG_RSH = ''ssh -i ${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa.borgbackup'';
   };
   
   ServerLocal = mkMerge [ defaults {
     paths = "/Volumes/Server";
     repo = "${localBackupRoot}/Server";
+    # preHook = ''
+    #   systemctl list-units --type=service --all \
+    #     | grep docker- \
+    #     | tr -s " " \
+    #     | cut -d" " -f 2  \
+    #     | xargs systemctl stop
+    # '';
+    # postHook = ''
+    #   systemctl list-units --type=service --all \
+    #     | grep docker- \
+    #     | tr -s " " \
+    #     | cut -d" " -f 2  \
+    #     | xargs systemctl restart
+    # '';
     preHook = ''
     	systemctl stop docker.socket
 	    systemctl stop docker.service
@@ -50,21 +64,6 @@ let
     startAt = "*-*-* 03:00:00";
   }];
 
-  ServerLocalRedundant = mkMerge [ ServerLocal {
-    repo = mkForce "${localRedundantBackupRoot}/Server";
-    startAt = mkForce "*-*-* 01:30:00";
-  }];
-
-  RaeLocalRedundant = mkMerge [ RaeLocal {
-    repo = mkForce "${localRedundantBackupRoot}/Rae";
-    startAt = mkForce "*-*-* 02:30:00";
-  }];
-
-  CameronLocalRedundant = mkMerge [ CameronLocal {
-    repo = mkForce "${localRedundantBackupRoot}/Cameron";
-    startAt = mkForce "*-*-* 03:30:00";
-  }];
-
   # ServerRemote = mkMerge [ ServerLocal {
   #   repo = mkForce "${remoteBackupRoot}/Server";
   #   startAt = mkForce "*-*-* 01:30:00";
@@ -82,22 +81,14 @@ let
 
 in {
   config = {
-    age.identityPaths = [ ../../../../_/id_rsa.borgbackup ];
-    age.secrets.borgbackup.file = ../../../../secrets/borgbackup.age;
-
-    # TODO: not sure if this is needed since these files almost never change
-    # services.cron.systemCronJobs = [
-    #   "0 5 * * 0  root   rsync -avh  --min-size=1  /Volumes/BulkStorage/ /Volumes/Backup/BulkStorage/"
-    # ]; 
+    age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa.borgbackup" ];
+    age.secrets.borgbackup.file = ../../../secrets/borgbackup.age;
 
     services.borgbackup = {
       jobs = {
         CameronLocal = CameronLocal;
-        CameronLocalRedundant = CameronLocalRedundant;
         RaeLocal = RaeLocal;
-        RaeLocalRedundant = RaeLocalRedundant;
         ServerLocal = ServerLocal;
-        ServerLocalRedundant = ServerLocalRedundant;
       };
     };
   };
