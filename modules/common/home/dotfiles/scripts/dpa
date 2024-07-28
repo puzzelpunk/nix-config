@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+[[ ! -e /opt/homebrew/bin/displayplacer ]] && (brew tap jakehilborn/jakehilborn && brew install displayplacer)
+
+DISPLAYS=`displayplacer list | grep Persistent | cut -d":" -f 2 | tr -s ""`
+DISP1=`echo $DISPLAYS | cut -d" " -f 1`
+DISP2=`echo $DISPLAYS | cut -d" " -f 2`
+
+function displayplacerConf() {
+  local disp=$1
+  local origin=$2
+  echo "id:${disp} res:1920x1080 hz:30 color_depth:8 scaling:on origin:(${origin},0) degree:0"
+}
+
+displayplacer "`displayplacerConf $DISP1 1920`" "`displayplacerConf $DISP2 0`"
