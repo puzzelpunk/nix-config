@@ -8,7 +8,12 @@ with lib;
   # so this is the workaround for now
   # nix.package = pkgs.nixUnstable; # Flakes will automatically use the latest version of nixpkgs
   age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/_unixconf_nix/_/id_rsa" ];
-  environment.systemPackages = with pkgs; [ nixfmt git vim age ];
+  environment.systemPackages = with pkgs; [ 
+    # nixfmt 
+    git 
+    vim 
+    age
+  ];
   environment.variables.LANG = config.cfg.localization.lang;
   networking.hostName = config.cfg.os.hostname;
   nix.settings.auto-optimise-store = true;
