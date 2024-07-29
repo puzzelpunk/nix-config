@@ -10,6 +10,23 @@ in {
     nextcloud_admin_password.file = ../../../secrets/nextcloud_admin_password.age;
   };
 
+  ## TODO the nixos module for nextcloud does this automatically.
+  # services.postgresql = {
+  #   ensureDatabases = [ "nextcloud" ];
+  #   ensureUsers = [
+  #    { name = "nextcloud";
+  #      ensureDBOwnership = true;
+  #    }
+  #   ];
+  # };
+
+  # Database backups.
+  services.postgresqlBackup.databases = [config.services.nextcloud.config.dbname];
+
+  # Open the Nextcloud port.
+  networking.firewall.allowedTCPPorts = [ nextcloud_local_port ];
+
+  # Create the Nextcloud admin password file.
   systemd.services.nextcloud-password-setup = {
     description = "Create Nextcloud admin password file";
     wantedBy = [ "multi-user.target" ];
@@ -31,11 +48,13 @@ in {
     '';
   };
 
+  # Ensure Nextcloud admin password file exists before Nextcloud setup.
   systemd.services."nextcloud-setup" = {
     requires = ["nextcloud-password-setup.service"];
     after = ["nextcloud-password-setup.service"];
   };
 
+  # Nextcloud nginx config
   services.nginx.virtualHosts = {
     "${nextcloud_public_domain}" = {
       ## Not using certbot because cloudflared handles the SSL.
@@ -54,6 +73,7 @@ in {
     };
   };
 
+  # Cloudflared config
   services.cloudflared = {
     tunnels."07c9f962-1f28-42ec-bc26-f997937bc678" = {
       ingress = {
@@ -62,68 +82,49 @@ in {
     };
   };
   
+  # Nextcloud config
   services.nextcloud = {
-      enable = true;
-      hostName = nextcloud_public_domain;
-      home = nextcloud_home_dir;
-      # Need to manually increment with every major upgrade.
-      package = pkgs.nextcloud29;
-      # Let NixOS install and configure the database automatically.
-      database.createLocally = true;
-      # Let NixOS install and configure Redis caching automatically.
-      configureRedis = true;
-      # Increase the maximum file upload size.
-      maxUploadSize = "16G";
+    enable = true;
+    hostName = nextcloud_public_domain;
+    home = nextcloud_home_dir;
+    # Need to manually increment with every major upgrade.
+    package = pkgs.nextcloud29;
+    # Let NixOS install and configure the database automatically.
+    database.createLocally = true;
+    # Let NixOS install and configure Redis caching automatically.
+    configureRedis = true;
+    # Increase the maximum file upload size.
+    maxUploadSize = "16G";
 
-      settings = {
-        # overwriteProtocol = "https"; # Cloudflared handles the SSL.
-        default_phone_region = "US";
-        trusted_domains = [ nextcloud_private_domain ];
-      };
+    settings = {
+      # overwriteProtocol = "https"; # Cloudflared handles the SSL.
+      default_phone_region = "US";
+      trusted_domains = [ nextcloud_private_domain ];
+    };
 
-      config = {
-        # dbuser = "nextcloud";
-        # dbpassFile = nextcloud_admin_password_file;
-        # adminuser = "root";
-        dbtype = "pgsql";
-        adminpassFile = nextcloud_admin_password_file;
-      };
+    config = {
+      # dbuser = "nextcloud";
+      # dbpassFile = nextcloud_admin_password_file;
+      # adminuser = "root";
+      dbtype = "pgsql";
+      adminpassFile = nextcloud_admin_password_file;
+    };
 
-      # Suggested by Nextcloud's health check.
-      phpOptions."opcache.interned_strings_buffer" = "16";
+    # Suggested by Nextcloud's health check.
+    phpOptions."opcache.interned_strings_buffer" = "16";
 
-      # appstoreEnable = true;
-      # extraApps = with config.services.nextcloud.package.packages.apps; {
-      #   # List of apps we want to install and are already packaged in
-      #   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
-      #   inherit calendar contacts notes onlyoffice tasks cookbook qownnotesapi;
-      #   # Custom app example.
-      #   socialsharing_telegram = pkgs.fetchNextcloudApp rec {
-      #     url =
-      #       "https://github.com/nextcloud-releases/socialsharing/releases/download/v3.0.1/socialsharing_telegram-v3.0.1.tar.gz";
-      #     license = "agpl3";
-      #     sha256 = "sha256-8XyOslMmzxmX2QsVzYzIJKNw6rVWJ7uDhU1jaKJ0Q8k=";
-      #   };
-      # };
+    # appstoreEnable = true;
+    # extraApps = with config.services.nextcloud.package.packages.apps; {
+    #   # List of apps we want to install and are already packaged in
+    #   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
+    #   inherit calendar contacts notes onlyoffice tasks cookbook qownnotesapi;
+    #   # Custom app example.
+    #   socialsharing_telegram = pkgs.fetchNextcloudApp rec {
+    #     url =
+    #       "https://github.com/nextcloud-releases/socialsharing/releases/download/v3.0.1/socialsharing_telegram-v3.0.1.tar.gz";
+    #     license = "agpl3";
+    #     sha256 = "sha256-8XyOslMmzxmX2QsVzYzIJKNw6rVWJ7uDhU1jaKJ0Q8k=";
+    #   };
+    # };
   };
-
-  # services.postgresql = {
-    # enable = true;
-
-    # ensureDatabases = [ "nextcloud" ];
-    # ensureUsers = [
-    #  { name = "nextcloud";
-    #    ensureDBOwnership = true;
-    #   #  ensurePermissions."DATABASE nextcloud" = "ALL PRIVILEGES";
-    #  }
-    # ];
-  # };
-
-  # # Nightly database backups.
-  # services.postgresqlBackup = {
-  #   enable = true;
-  #   startAt = "*-*-* 01:15:00";
-  # };
-
-  networking.firewall.allowedTCPPorts = [ nextcloud_local_port ];
 }

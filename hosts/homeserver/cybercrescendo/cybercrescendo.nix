@@ -1,6 +1,7 @@
 { config, lib, pkgs, options, ... }:
 {
-  imports = [ 
+  imports = [
+    ./database.nix
     ./nextcloud.nix
     ./proxy.nix
   ];
