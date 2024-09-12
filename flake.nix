@@ -37,10 +37,10 @@
         modules = globalModulesNixos
           ++ [ ./hosts/icyvortex/configuration.nix ];
       };
-      homeserver = nixpkgs.lib.nixosSystem {
+      opus = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = globalModulesNixos
-          ++ [ ./hosts/homeserver/configuration.nix ];
+          ++ [ ./hosts/opus/configuration.nix ];
       };
     };
     darwinConfigurations = {
