@@ -2,6 +2,7 @@
 {
   imports = [
     ./docker.nix
-    ./docker-gitea.nix
+    ./gitea.nix
+    ./resiliosync.nix
   ];
 }

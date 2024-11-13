@@ -26,7 +26,7 @@
     # ./modules/docker-pypiserver.nix
     # ./modules/docker-glitchtip.nix
     # ./modules/docker-gpt4free.nix
-    # ./modules/proxy.nix
+    ./modules/proxy.nix
     ./modules/cloudflared.nix
     ./modules/docker.nix
     ./modules/filesystems.nix

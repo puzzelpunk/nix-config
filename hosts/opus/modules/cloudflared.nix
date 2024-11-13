@@ -166,9 +166,7 @@ in {
     description = "Create or update Cloudflare tunnel";
     wantedBy = [ "multi-user.target" ];
     before = [ "cloudflared.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-    };
+    serviceConfig.Type = "oneshot";
     script = ''
       ${fetchOrCreateTunnel}
       ${createExecStartScript}
@@ -179,19 +177,15 @@ in {
     description = "Fetch Origin CA certificates for Cloudflare tunnel domains";
     wantedBy = [ "multi-user.target" ];
     before = [ "cloudflared.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-    };
     script = cloudflareOriginCertsScript;
+    serviceConfig.Type = "oneshot";
   };
   systemd.services.cloudflared-update-dns = {
     description = "Update DNS records for cloudflare tunnel domains";
     wantedBy = [ "multi-user.target" ];
     after = [ "cloudflared-tunnel-${tunnel_name}.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-    };
     script = cloudflareUpdateDNSScript;
+    serviceConfig.Type = "oneshot";
   };
  
   systemd.services."cloudflared-tunnel-${tunnel_name}".serviceConfig.ExecStart = lib.mkForce "${cloudflared_home_dir}/${tunnel_name}_tunnel.sh";
@@ -201,9 +195,6 @@ in {
     tunnels.${tunnel_name} = {
       credentialsFile = "${cloudflared_home_dir}/.${tunnel_name}.json";
       default = "http_status:404";
-      ingress = {
-        # Define your ingress rules here
-      };
     };
   };
 }
