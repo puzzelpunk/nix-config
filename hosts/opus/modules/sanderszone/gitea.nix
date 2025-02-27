@@ -8,7 +8,7 @@ in {
   services.gitea = {
     enable = true;
     stateDir = gitea_dir;
-    dump.enable = true;
+    # dump.enable = true;
     lfs.enable = true;
     database.createDatabase = false;
   };
@@ -16,7 +16,7 @@ in {
   services.cloudflared = {
     tunnels."${config.networking.hostName}" = {
       ingress = {
-        "${gitea_public_domain}" = "https://${config.cfg.networking.static.ip_address}:${builtins.toString gitea_web_port}";
+        "${gitea_public_domain}" = "http://${config.cfg.networking.static.ip_address}:${builtins.toString gitea_web_port}";
       };
     };
   };
