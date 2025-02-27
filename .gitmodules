@@ -1,3 +1,3 @@
 [submodule "_"]
 	path = _
-	url = https://gitea.cameron.computer/cameron/_.git
+	url = git@github.com:computercam/_.git
