@@ -11,8 +11,5 @@ in {
   nix.settings.max-jobs = 8;
   programs.zsh.enable = true;
   services.fstrim.enable = true;
-  users.groups.rae.name = "rae";
-  users.users.rae.group = "rae";
-  users.users.rae.isNormalUser = true;
   programs.nix-ld.enable = true;
 }
