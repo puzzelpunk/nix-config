@@ -3,17 +3,10 @@ with pkgs.stdenv;
 with lib;
 let
   fzshInitExtraConfig = import ./zshInitExtraConfig.nix;
-  zshInitExtraConfig = fzshInitExtraConfig { lib = lib; pkgs = pkgs; };
+  zshInitExtraConfig = fzshInitExtraConfig { config = config; lib = lib; pkgs = pkgs; };
   fgetZshInitExtra = import ./getZshInitExtra.nix;
   getZshInitExtra = fgetZshInitExtra { lib = lib; pkgs= pkgs; zshInitExtraConfig = zshInitExtraConfig; };
 in {
-  
-  # TODO need to scope this to the home environment
-  environment.systemPackages = with pkgs; [
-    zoxide
-    neovim
-  ];
-
   home-manager.users."${config.cfg.user.name}" = {
     home.stateVersion = config.cfg.os.version;
 
@@ -39,11 +32,10 @@ in {
         coreutils-full # generic
 
         findutils # search
-        ripgrep # search _ rust alt - find + grep # https://github.com/BurntSushi/ripgrep
 
-        bat # shell _ rust alt - cat & less # https://github.com/sharkdp/bat
-        exa # shell _ rust alt - ls # https://github.com/ogham/exa
-        zoxide # shell _ rust alt - cd # https://github.com/ajeetdsouza/zoxide
+        bat # shell
+        exa # shell
+        zoxide # shell
       
         neofetch # system info
         lsof # system info
@@ -62,18 +54,17 @@ in {
         curl # file transfer
         rsync # file transfer and sync
         wget # file transfer
-        youtube-dl # file transfer and downloader downloader
         lftp # file transfer
       
         pandoc # multimedia
         ffmpeg-full # multimedia
         imagemagick # multimedia
       ] ++ [
-        cmatrix 
-        cowsay
+        # cmatrix 
+        # cowsay
         figlet
-        lolcat
-        pipes
+        # lolcat
+        # pipes
         toilet
         pywal
         colorz
