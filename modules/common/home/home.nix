@@ -34,7 +34,7 @@ in {
         findutils # search
 
         bat # shell
-        exa # shell
+        eza # shell
         zoxide # shell
       
         neofetch # system info
@@ -62,12 +62,12 @@ in {
       ] ++ [
         # cmatrix 
         # cowsay
-        figlet
         # lolcat
         # pipes
+        # colorz
+        # pywal
+        figlet
         toilet
-        pywal
-        colorz
       ];
   };
 
