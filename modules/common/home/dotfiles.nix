@@ -23,5 +23,5 @@ let
     }) (files dir));
 in {
   config.home-manager.users."${config.cfg.user.name}".home.file = 
-    (mkMerge (dotfiles ./.dotfiles)); 
+    (mkMerge (dotfiles ./dotfiles)); 
 }

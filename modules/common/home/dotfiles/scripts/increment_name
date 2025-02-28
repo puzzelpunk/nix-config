@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Usage: increment_name "dir or file name" "separator" "zero padding amount"
+#
+# Assumes the file or dir is relative to users's current working director (pwd)
+#
+# Note: Use a dash "-" as the second argument if you don't want a separator.
+#
+# Example: This example assumes the files "foo" and "foo_001" are present.
+# increment_name _ 2 -> "foo_002"
+pad_default="2"
+sep_default="_"
+
+name=$(base_name $1)
+ext=$(ext_name $1)
+
+sep=$([[ -z "$2" ]] && printf $sep_default || printf $2)
+pad=$([[ -z "$3" ]] && printf $pad_default || ([[ $3 =~ "^[0-9]+$" ]] && printf $3 || printf $pad_default))
+
+num=$(printf '%s\n' ${name}* | grep -P "^${name}${sep}\d+$" | wc -l)
+num=$((num + 1))
+num=$(printf "%0${pad}d" $num)
+
+printf "${name}${sep}${num}${ext}"

@@ -1,6 +1,6 @@
 { config, pkgs, ... }: {
   imports = [
-    ../../modules/common/dotfiles/dotfiles.nix
+    ../../modules/common/home/dotfiles.nix
     ../../modules/common/fonts/fonts.nix
     ../../modules/common/home/home.nix
     # ../../modules/darwin/service-yabai/service-yabai.nix
