@@ -49,10 +49,10 @@
         modules = globalModulesMacos
           ++ [ ./hosts/hackinfrost/configuration.nix ];
       };
-      silicontundra = nix-darwin.lib.darwinSystem {
+      forte = nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = globalModulesMacos
-          ++ [ ./hosts/silicontundra/configuration.nix ];
+          ++ [ ./hosts/forte/configuration.nix ];
       };
     };
   };

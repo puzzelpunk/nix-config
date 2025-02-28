@@ -20,6 +20,8 @@ fi
 if [[ `uname` == "Darwin" ]];
 then
   sudo scutil --set HostName $1
+  sudo scutil --set LocalHostName $1
+  sudo scutil --set ComputerName $1
   echo "Run:"
   echo "nix --extra-experimental-features \"nix-command flakes\" run nix-darwin -- switch --flake $DIR"
   echo ""
