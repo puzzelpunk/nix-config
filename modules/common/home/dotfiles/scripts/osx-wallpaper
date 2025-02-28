@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+function get_wallpaper() {
+  echo `osascript -e 'tell application "System Events" to get picture of desktop 1'`
+}
+
+function set_wallpaper() {
+  osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$1\""
+}
+
+function set_pywal() {
+  # wal --backend colorz --saturate 0.3 -i $1 -n
+  wal --backend wal --saturate 0.3 -i $1 -n
+}
+
+function set_yabai() {
+  which yabai && source $HOME/.config/yabai/yabairc
+}
+
+if [ -n "$1" ];
+then
+  set_wallpaper $1
+  set_pywal $1
+else
+  wallpaper=`get_wallpaper`
+  set_wallpaper $wallpaper
+  set_pywal $wallpaper
+fi

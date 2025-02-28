@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+dir=$(dirname $(readlink -f $1))
+
+echo $dir

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+name=`echo $@ | awk '{print $NF}'`
+ps aux | grep -i $name | grep -v grep | head -n 1 | awk '{print $2}'
