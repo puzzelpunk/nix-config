@@ -1,0 +1,221 @@
+{
+  "title": "Fix Terminal Shortcuts After Swap CMD with CTRL",
+  "rules": [
+    {
+      "description": "Terminal: CMD + SHIFT + X to CMD + X",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui", "left_shift"] },
+            "key_code": "x"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [{ "repeat": true, "modifiers": ["left_gui"], "key_code": "x" }]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + SHIFT + A to CMD + A",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui", "left_shift"] },
+            "key_code": "a"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [{ "repeat": true, "modifiers": ["left_gui"], "key_code": "a" }]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + SHIFT + C to CMD + C",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui", "left_shift"] },
+            "key_code": "c"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [{ "repeat": true, "modifiers": ["left_gui"], "key_code": "c" }]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + SHIFT + V to CMD + V",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui", "left_shift"] },
+            "key_code": "v"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [{ "repeat": true, "key_code": "v", "modifiers": ["left_gui"] }]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + C to CTRL + C",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui"] },
+            "key_code": "c"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [
+            { "repeat": true, "key_code": "c", "modifiers": ["left_control"] }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + E to CTRL + E",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui"] },
+            "key_code": "e"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [
+            { "repeat": true, "key_code": "e", "modifiers": ["left_control"] }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + A to CTRL + A",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui"] },
+            "key_code": "a"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [
+            { "repeat": true, "key_code": "a", "modifiers": ["left_control"] }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Terminal: CMD + L to CTRL + L",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "modifiers": { "mandatory": ["left_gui"] },
+            "key_code": "l"
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "description": "",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyperterm$",
+                "^io\\.alacritty$",
+                "^net\\.kovidgoyal\\.kitty$"
+              ]
+            }
+          ],
+          "to": [
+            { "repeat": true, "key_code": "l", "modifiers": ["left_control"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

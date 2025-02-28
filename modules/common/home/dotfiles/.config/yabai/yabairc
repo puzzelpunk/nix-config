@@ -1,0 +1,84 @@
+/usr/bin/sudo /opt/homebrew/bin/yabai --load-sa
+
+# border
+/opt/homebrew/bin/yabai -m config window_border                on
+/opt/homebrew/bin/yabai -m config window_border_width          8
+/opt/homebrew/bin/yabai -m config window_border_radius         12
+/opt/homebrew/bin/yabai -m config window_border_blur           off
+
+# gaps
+/opt/homebrew/bin/yabai -m config layout                       bsp
+/opt/homebrew/bin/yabai -m config top_padding                  8
+/opt/homebrew/bin/yabai -m config bottom_padding               8
+/opt/homebrew/bin/yabai -m config left_padding                 8
+/opt/homebrew/bin/yabai -m config right_padding                8
+/opt/homebrew/bin/yabai -m config window_gap                   8
+
+# window appearance
+/opt/homebrew/bin/yabai -m config window_opacity               off
+/opt/homebrew/bin/yabai -m config window_shadow                float
+/opt/homebrew/bin/yabai -m config active_window_opacity        1.0
+/opt/homebrew/bin/yabai -m config normal_window_opacity        0.90
+
+# colours
+if [[ -e $HOME/.cache/wal/colors.sh ]];
+then
+  source $HOME/.cache/wal/colors.sh
+
+  CB=$(echo $background | sed 's/#//')
+  CF=$(echo $foreground | sed 's/#//')
+  C1=$(echo $color1 | sed 's/#//')
+  C2=$(echo $color2 | sed 's/#//')
+  C3=$(echo $color3 | sed 's/#//')
+  C4=$(echo $color4 | sed 's/#//')
+  C5=$(echo $color5 | sed 's/#//')
+  C6=$(echo $color6 | sed 's/#//')
+
+  /opt/homebrew/bin/yabai -m config active_window_border_color   0xff$C4
+  /opt/homebrew/bin/yabai -m config normal_window_border_color   0xff$CB
+fi
+
+# window placement
+/opt/homebrew/bin/yabai -m config auto_balance                 on
+/opt/homebrew/bin/yabai -m config window_placement             second_child
+/opt/homebrew/bin/yabai -m config window_topmost               off
+
+# mouse 
+/opt/homebrew/bin/yabai -m config mouse_modifier               cmd
+/opt/homebrew/bin/yabai -m config mouse_action1                move
+/opt/homebrew/bin/yabai -m config mouse_action2                resize
+/opt/homebrew/bin/yabai -m config mouse_follows_focus          on
+/opt/homebrew/bin/yabai -m config focus_follows_mouse          off
+
+# create workspsaces
+$HOME/scripts/yabaictl create_workspaces
+
+# rules
+/opt/homebrew/bin/yabai -m rule --add app="^Adobe Creative Cloud$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Backblaze$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^balenaEtcher$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Calculator$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Contexts$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Dash$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Flux$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Focus$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^HandBrake$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Karabiner-Elements$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Little Snitch$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^nextcloud$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^QuickTime Player$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^Stickies$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^System Preferences$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^TeamViewer$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^The Unarchiver$" manage=off
+/opt/homebrew/bin/yabai -m rule --add app="^VLC$" manage=off
+
+/opt/homebrew/bin/yabai -m rule --add app="^Typora$" manage=on
+/opt/homebrew/bin/yabai -m rule --add app="^Typora$" sticky=off
+
+/opt/homebrew/bin/yabai -m rule --add app="Slack$" space=6
+/opt/homebrew/bin/yabai -m rule --add app="Microsoft Teams$" space=6
+/opt/homebrew/bin/yabai -m rule --add app="Calendar$" space=5
+/opt/homebrew/bin/yabai -m rule --add app="Mail$" space=5
+
+echo "yabai configuration loaded.."
