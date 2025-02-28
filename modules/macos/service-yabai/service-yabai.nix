@@ -19,13 +19,9 @@ in {
   imports = [ ./modules.nix ];
 
   config = {
-    environment.systemPackages = with pkgs; [ 
-      nodejs # needed for my yabai script
-    ];
-
     homebrew = {
-      taps = [ "koekeishiya/formulae" ];
-      brews = [ "yabai" "skhd" ];
+      taps = [ "koekeishiya/formulae" "FelixKratz/formulae" ];
+      brews = [ "yabai" "skhd" "borders" ];
     };
 
     security.accessibilityPrograms = [ "${yabai}" "${skhd}" ];
