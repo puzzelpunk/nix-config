@@ -16,7 +16,7 @@ with lib;
   ];
   environment.variables.LANG = config.cfg.localization.lang;
   networking.hostName = config.cfg.os.hostname;
-  nix.settings.auto-optimise-store = true;
+  nix.optimise.automatic = true;
   nix.settings.experimental-features = "nix-command flakes";
   nixpkgs.config.allowUnfree = true;
   programs.zsh.enable = true;
