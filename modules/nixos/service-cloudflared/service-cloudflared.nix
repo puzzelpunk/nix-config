@@ -118,48 +118,44 @@ in {
   systemd.services."cloudflared-tunnel-setup-${tunnelName}" = {
     description = "Create or update Cloudflare tunnel ${tunnelName}";
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" "network-online.target" ];
+    after = [ "network-online.target" ];
+    # requires = [ "network-online.target" ];
     script = ''
       ${createCloudflaredHome}
       ${fetchOrCreateTunnel}
       ${createExecStartScript}
     '';
     serviceConfig.Type = "oneshot";
+    serviceConfig.RemainAfterExit = true;
   };
 
   systemd.services."cloudflared-origin-certs-${tunnelName}" = {
     description = "Fetch Origin CA certificates for Cloudflare tunnel ${tunnelName} domains";
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" "network-online.target" ];
+    after = [ "network-online.target" ];
+    # requires = [ "network-online.target" ];
     script = ''
       ${cloudflareOriginCertsScript}
     '';
     serviceConfig.Type = "oneshot";
+    serviceConfig.RemainAfterExit = true;
   };
 
   systemd.services."cloudflared-update-dns-${tunnelName}" = {
     description = "Update DNS records for cloudflare tunnel ${tunnelName} domains";
     wantedBy = [ "multi-user.target" ];
-    after = [ 
-      "network.target" 
-      "network-online.target" 
-      "cloudflared-tunnel-${tunnelName}.service" 
-    ];
+    after = [ "network-online.target" "cloudflared-tunnel-${tunnelName}.service" ];
+    # requires = [ "network-online.target" ];
     script = ''
       ${cloudflareUpdateDNSScript}
     '';
     serviceConfig.Type = "oneshot";
+    serviceConfig.RemainAfterExit = true;
   };
  
   systemd.services."cloudflared-tunnel-${tunnelName}" = {
-    after = [
-      "network.target"
-      "network-online.target"
-      "cloudflared-origin-certs-${tunnelName}.service"
-      "cloudflared-tunnel-setup-${tunnelName}.service"
-    ];
+    after = [ "network-online.target" "cloudflared-tunnel-setup-${tunnelName}.service" ];
     requires = [ "cloudflared-tunnel-setup-${tunnelName}.service" ];
-
     serviceConfig = {
       Restart = "on-failure";
       ExecStart = lib.mkForce "${homeDir}/${tunnelName}_tunnel.sh";

@@ -39,3 +39,4 @@ $CURL -X POST "https://api.cloudflare.com/client/v4/certificates" \
   | $JQ -r '.result.private_key' > "$CLOUDFLARED_HOME_DIR/$SUBDOMAIN.key"
 
 echo "Origin certificate for $SUBDOMAIN successfully created"
+exit 0

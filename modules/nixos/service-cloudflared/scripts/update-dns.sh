@@ -85,3 +85,4 @@ for subdomain in $INGRESS_DOMAINS; do
 done
 
 echo "DNS records updated successfully"
+exit 0

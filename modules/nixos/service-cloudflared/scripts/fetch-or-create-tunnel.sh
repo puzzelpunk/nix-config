@@ -27,6 +27,8 @@ done
 
 
 # Fetch existing tunnel
+echo "Fetching tunnel id for $TUNNEL_NAME"
+
 TUNNEL_ID=$($CURL -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID_CONTENT/cfd_tunnel" \
   -H "X-Auth-Email: $ACCOUNT_EMAIL_CONTENT" \
   -H "X-Auth-Key: $ACCOUNT_API_CONTENT" \
@@ -43,7 +45,7 @@ if [ -z "$TUNNEL_ID" ] || [ "$TUNNEL_ID" = "null" ]; then
     | $JQ -r '.result.id')
   
   if [ -z "$TUNNEL_ID" ] || [ "$TUNNEL_ID" = "null" ]; then
-    echo "ERROR: Failed to create tunnel"
+    echo "ERROR: Failed to fetch tunnel id for $TUNNEL_NAME"
     exit 1
   fi
   echo "Created tunnel with ID: $TUNNEL_ID"
@@ -52,6 +54,8 @@ else
 fi
 
 # Fetch account tag
+echo "Fetching account tag for $TUNNEL_ID"
+
 ACCOUNT_TAG=$($CURL -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID_CONTENT/cfd_tunnel/$TUNNEL_ID" \
   -H "X-Auth-Email: $ACCOUNT_EMAIL_CONTENT" \
   -H "X-Auth-Key: $ACCOUNT_API_CONTENT" \
@@ -63,10 +67,14 @@ if [ -z "$ACCOUNT_TAG" ] || [ "$ACCOUNT_TAG" = "null" ]; then
 fi
 
 # Fetch tunnel secret/token
-TUNNEL_SECRET=$($CURL -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID_CONTENT/cfd_tunnel/$TUNNEL_ID/token" \
+echo "Fetching tunnel secret for $TUNNEL_ID"
+
+TUNNEL_RESPONSE=$($CURL -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID_CONTENT/cfd_tunnel/$TUNNEL_ID/token" \
   -H "X-Auth-Email: $ACCOUNT_EMAIL_CONTENT" \
-  -H "X-Auth-Key: $ACCOUNT_API_CONTENT" \
-  | $JQ -r '.result')
+  -H "X-Auth-Key: $ACCOUNT_API_CONTENT")
+
+# Extract the token - the API might return it differently
+TUNNEL_SECRET=$(echo "$TUNNEL_RESPONSE" | $JQ -r '.result')
 
 if [ -z "$TUNNEL_SECRET" ] || [ "$TUNNEL_SECRET" = "null" ]; then
   echo "ERROR: Failed to fetch tunnel secret for tunnel $TUNNEL_ID"
@@ -82,3 +90,4 @@ echo "{\"AccountTag\":\"$ACCOUNT_TAG\",\"TunnelSecret\":\"$TUNNEL_SECRET\",\"Tun
 chmod 600 "$CLOUDFLARED_HOME_DIR/.$TUNNEL_NAME.json"
 chown "$CLOUDFLARED_USER:$CLOUDFLARED_USER" "$CLOUDFLARED_HOME_DIR/.$TUNNEL_NAME.json"
 echo "Tunnel configuration successfully created"
+exit 0
