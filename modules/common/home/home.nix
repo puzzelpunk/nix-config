@@ -12,12 +12,12 @@ in {
 
     programs.git = {
       enable = true;
-      userName = config.cfg.user.name;
-      userEmail = config.cfg.user.email;
+      settings.user.name = config.cfg.user.name;
+      settings.user.email = config.cfg.user.email;
     };
 
     programs.zsh.enable = true;
-    programs.zsh.initExtra = getZshInitExtra;
+    programs.zsh.initContent= getZshInitExtra;
 
     # TODO need to make this optional with options
     home.packages = with pkgs; 
