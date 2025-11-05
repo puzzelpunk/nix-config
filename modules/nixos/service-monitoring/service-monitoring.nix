@@ -11,9 +11,8 @@
 
   services.grafana = {
     enable = true;
-    settings.server = {
-      http_port = 3000;
-      domain = "monitoring.local";
-    };
+    port = 4000;
+    addr = "0.0.0.0";
+    domain = "grafana.${config.cfg.domain}";
   };
 }
