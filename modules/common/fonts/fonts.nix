@@ -7,6 +7,5 @@
       inter
       dejavu_fonts
     ];
-    fontDir.enable = true;
   };
 }
