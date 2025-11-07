@@ -1,6 +1,6 @@
 { config, lib, pkgs, options, ... }: {
   fonts = {
-    fonts = with pkgs; [
+    packages = with pkgs; [
       nerd-fonts.fantasque-sans-mono
       nerd-fonts.victor-mono
       corefonts

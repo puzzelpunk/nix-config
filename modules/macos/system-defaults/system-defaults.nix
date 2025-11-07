@@ -11,8 +11,8 @@
     "com.apple.swipescrolldirection" = false;
   };
   system.defaults.alf = {
-    stealthenabled = 1;
-    loggingenabled = 1;
+    # stealthenabled = 1;
+    # loggingenabled = 1;
   };
   system.defaults.dock = {
     autohide = true;
