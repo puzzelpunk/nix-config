@@ -1,14 +1,11 @@
 { config, lib, pkgs, options, ... }: {
   config.homebrew.taps = [];
-
-
   config.homebrew.brews = [ "colima" "docker" "docker-compose" ];
-  config.homebrew.casks = [        
+  config.homebrew.casks = [
     "appcleaner"
     "balenaetcher"
     "basictex"
     "bitwig-studio"
-    "boltai"
     "brave-browser"
     "discord"
     "disk-drill"
@@ -19,7 +16,6 @@
     "grandperspective"
     "handbrake"
     "inkscape"
-    "wezterm"
     "karabiner-elements"
     "krita"
     "launchcontrol"
@@ -27,27 +23,23 @@
     "little-snitch"
     "obs"
     "obsidian"
-    "ollama"
-    "openvpn-connect"
-    "protonmail-bridge"
-    "protonvpn"
-    "raycast"
+    {
+      name = "ollama";
+      start_service = true;
+    }
     "resilio-sync"
-    "spotify"
     "the-unarchiver"
     "transmission"
     "utm"
-    "visual-studio-code"
     "vlc"
+    "vscodium"
     "zed"
-    "zed@preview"
     # "blender"
     # "charles"
     # "darktable"
     # "dash"
     # "docker"
     # "musescore"
-    # "vscodium"
     # "wireshark"
   ];
 }
