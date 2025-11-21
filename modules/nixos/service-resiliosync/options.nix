@@ -2,6 +2,11 @@
 with pkgs.stdenv;
 with lib; {
   options.cfg.resiliosync = {
+    user = mkOption {
+      type = types.str;
+      default = "rslsync";
+      description = "The user resilio sync should run as.";
+    };
     resilioPublicDomain = mkOption {
       type = types.str;
       default = "resilio.${config.cfg.os.hostname}.local";
