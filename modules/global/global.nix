@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 {
   imports = [ ./options.nix ];
@@ -7,9 +12,11 @@ with lib;
   # i can't commit this private key and don't want to put private key in the nix store
   # so this is the workaround for now
   # nix.package = pkgs.nixUnstable; # Flakes will automatically use the latest version of nixpkgs
-  age.identityPaths = [ "${config.users.users."${config.cfg.user.name}".home}/REPO/_/id_rsa" ];
+  age.identityPaths = [
+    "${config.users.users."${config.cfg.user.name}".home}/REPO/_/id_rsa"
+  ];
   environment.systemPackages = with pkgs; [
-    # nixfmt
+    nixfmt
     git
     vim
     age
@@ -26,38 +33,63 @@ with lib;
   # nix.settings.allowed-users = [ config.cfg.user.name ];
   nix.settings.trusted-users = [ config.cfg.user.name ];
 
-  users.users."${config.cfg.user.name}" = (mkMerge [
-    (if config.cfg.os.name == "nixos" then {
-      createHome = true;
-      extraGroups = [ "wheel" ];
-      group = config.cfg.user.name;
-      home = "/home/${config.cfg.user.name}";
-      isNormalUser = true;
-      uid = 1000;
-    } else {})
-    ( if config.cfg.os.name == "macos" then {
-      home = "/Users/${config.cfg.user.name}";
-    } else {})
-    ({
-      name = config.cfg.user.name;
-      shell = pkgs.zsh;
-    })
-  ]);
+  users.users."${config.cfg.user.name}" = (
+    mkMerge [
+      (
+        if config.cfg.os.name == "nixos" then
+          {
+            createHome = true;
+            extraGroups = [ "wheel" ];
+            group = config.cfg.user.name;
+            home = "/home/${config.cfg.user.name}";
+            isNormalUser = true;
+            uid = 1000;
+          }
+        else
+          { }
+      )
+      (
+        if config.cfg.os.name == "macos" then
+          {
+            home = "/Users/${config.cfg.user.name}";
+          }
+        else
+          { }
+      )
+      ({
+        name = config.cfg.user.name;
+        shell = pkgs.zsh;
+      })
+    ]
+  );
 
-  users.groups."${config.cfg.user.name}" = (mkMerge [
-    (if config.cfg.os.name == "nixos" then {
-      name = config.cfg.user.name;
-      gid = 1000;
-    } else {})
-    (if config.cfg.os.name == "macos" then {
-      name = "staff";
-    } else {})
-  ]);
+  users.groups."${config.cfg.user.name}" = (
+    mkMerge [
+      (
+        if config.cfg.os.name == "nixos" then
+          {
+            name = config.cfg.user.name;
+            gid = 1000;
+          }
+        else
+          { }
+      )
+      (
+        if config.cfg.os.name == "macos" then
+          {
+            name = "staff";
+          }
+        else
+          { }
+      )
+    ]
+  );
 
   nix.extraOptions = ''
     auto-optimise-store = true
     experimental-features = nix-command flakes
-  '' + lib.optionalString (pkgs.system == "aarch64-darwin") ''
+  ''
+  + lib.optionalString (pkgs.system == "aarch64-darwin") ''
     extra-platforms = x86_64-darwin aarch64-darwin
   '';
 }

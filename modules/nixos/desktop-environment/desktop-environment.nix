@@ -1,4 +1,8 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  pkgs,
+  ...
+}:
+{
   config = {
     environment.systemPackages = with pkgs; [
       xorg.xkill

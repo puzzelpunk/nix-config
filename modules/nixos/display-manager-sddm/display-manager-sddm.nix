@@ -1,5 +1,12 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   config = {
-    services.xserver.displayManager.sddm.enable = true;
+    services.displayManager.sddm.enable = true;
   };
 }

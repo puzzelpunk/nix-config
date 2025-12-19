@@ -1,5 +1,12 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   cfg.os.name = "macos";
-  system.stateVersion = 4;
-  system.primaryUser = config.cfg.user.name;
+  stdenv.hostPlayform.system.stateVersion = 4;
+  stdenv.hostPlayform.system.primaryUser = config.cfg.user.name;
 }

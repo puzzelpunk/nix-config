@@ -1,8 +1,13 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with pkgs;
-with pkgs.stdenv; 
-with lib; 
+with pkgs.stdenv;
+with lib;
 
 {
   ohMyZsh = {
@@ -28,8 +33,8 @@ with lib;
     # EDITOR = "${pkgs.neovim}/bin/nvim";
     # VISUAL = "${pkgs.vscode}/bin/code";
     TERM = "xterm-256color";
-    PYENV_ROOT="$HOME/.pyenv";
-    NVM_DIR="$HOME/.nvm";
+    PYENV_ROOT = "$HOME/.pyenv";
+    NVM_DIR = "$HOME/.nvm";
   };
   aliases = {
     cat = ''${pkgs.bat}/bin/bat'';
@@ -42,11 +47,14 @@ with lib;
     lsports = ''clear ; ${pkgs.nmap}/bin/nmap -sS -T aggressive localhost'';
     vi = ''${pkgs.neovim}/bin/nvim'';
     vim = ''${pkgs.neovim}/bin/nvim'';
-    rebuild = (if config.cfg.os.name == "nixos" 
-      then "sudo nixos-rebuild switch"
-      else if config.cfg.os.name == "macos"
-      then "nix --show-trace --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $HOME/_unixconf_nix/flake.nix"
-      else "echo");
+    rebuild = (
+      if config.cfg.os.name == "nixos" then
+        "sudo nixos-rebuild switch"
+      else if config.cfg.os.name == "macos" then
+        "nix --show-trace --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $HOME/_unixconf_nix/flake.nix"
+      else
+        "echo"
+    );
   };
   setOpts = [
     "AUTOCD"
@@ -107,11 +115,11 @@ with lib;
     "${zsh-you-should-use}/share/zsh/plugins/you-should-use/you-should-use.plugin.zsh"
   ];
   extras = [
-    # ''(eval "nohup ${pkgs.pywal}/bin/wal -Rn" > /dev/null 2>&1 &)'' 
+    # ''(eval "nohup ${pkgs.pywal}/bin/wal -Rn" > /dev/null 2>&1 &)''
     ''eval "$(${pkgs.starship}/bin/starship init zsh)"''
     ''eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"''
     ''eval "$(${pkgs.pyenv}/bin/pyenv init -)"''
-    ''[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"''  # This loads nvm
-    ''[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"''  # This loads nvm bash_completion
+    ''[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'' # This loads nvm
+    ''[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'' # This loads nvm bash_completion
   ];
 }

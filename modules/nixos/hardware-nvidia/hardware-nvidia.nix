@@ -1,17 +1,19 @@
-{ config, lib, pkgs, options, ... }: 
-let 
-  nvidiaPackage = config.boot.kernelPackages.nvidiaPackages.stable;
-in {
+{
+  config,
+  pkgs,
+  ...
+}:
+{
   config = {
     environment.systemPackages = with pkgs; [
       nvtopPackages.nvidia
     ];
     hardware.graphics.enable = true;
-    hardware.opengl.driSupport32Bit = true;
-    
+    hardware.graphics.enable32Bit = true;
+
     hardware.nvidia = {
       nvidiaPersistenced = false;
-      package = nvidiaPackage;
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
       modesetting.enable = true;
       open = false;
     };
