@@ -1,16 +1,3 @@
-# Adapted from various sources:
-# - https://alexbakker.me/post/nixos-pci-passthrough-qemu-vfio.html
-# - https://codeberg.org/harrisonthorne/nixos-config
-# - https://github.com/ilayna/Single-GPU-passthrough-amd-nvidia
-# - https://github.com/joeknock90/Single-GPU-Passthrough
-# - https://github.com/QaidVoid/Complete-Single-GPU-Passthrough
-# - https://gitlab.com/Karuri/vfio/-/tree/master/
-# - https://gitlab.com/risingprismtv/single-gpu-passthrough/-/tree/master
-# - https://pastebin.com/q3RQZYUS
-# - https://passthroughpo.st/simple-per-vm-libvirt-hooks-with-the-vfio-tools-hook-helper/
-# - https://github.com/PassthroughPOST/VFIO-Tools/
-# - https://github.com/basharkey/nixos-desktop/blob/main/passthrough.nix
-
 { config, lib, pkgs, options, ... }:
   let
     cpuVendor = builtins.readFile (pkgs.runCommand "cpu-vendor.txt" {} ''
@@ -29,12 +16,12 @@
     boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
 
     # Boot configuration
-    boot.kernelModules = [ 
-      "kvm-${cpuVendor}" 
+    boot.kernelModules = [
+      "kvm-${cpuVendor}"
       "vfio-pci"
     ];
-    boot.kernelParams = [ 
-      "iommu=pt" 
+    boot.kernelParams = [
+      "iommu=pt"
       "${cpuVendor}_iommu=on"
     ];
     boot.extraModprobeConfig = ''
@@ -81,7 +68,7 @@
         value = "unlimited";
       }
     ];
-    
+
     # Enable libvirtd
     virtualisation.libvirtd = {
       enable = true;
@@ -101,10 +88,10 @@
       };
     };
 
-    
+
     # TODO: make gpu passthrough stuff more configurable
     # Add binaries to path so that hooks can use it
-    systemd.services.libvirtd.path = 
+    systemd.services.libvirtd.path =
       let env = pkgs.buildEnv {
         name = "qemu-hook-env";
         paths = with pkgs; [
