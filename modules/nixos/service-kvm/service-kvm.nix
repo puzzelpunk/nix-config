@@ -1,16 +1,27 @@
-{ config, lib, pkgs, options, ... }:
-  let
-    cpuVendor = builtins.readFile (pkgs.runCommand "cpu-vendor.txt" {} ''
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+let
+  cpuVendor = builtins.readFile (
+    pkgs.runCommand "cpu-vendor.txt" { } ''
       ((cat /proc/cpuinfo \
         | grep vendor \
         | head -n 1 \
         | grep -i intel > /dev/null 2>&1) \
           && echo -n 'intel' \
           || echo -n 'amd') > $out
-    '');
-  in
+    ''
+  );
+in
 {
-  imports = [ ./modules.nix ./options.nix ];
+  imports = [
+    ./modules.nix
+    ./options.nix
+  ];
 
   config = {
     boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
@@ -80,29 +91,33 @@
         swtpm.enable = true;
         ovmf = {
           enable = true;
-          packages = [(pkgs.OVMFFull.override {
-            secureBoot = true;
-            tpmSupport = true;
-          })];
+          packages = [
+            (pkgs.OVMFFull.override {
+              secureBoot = true;
+              tpmSupport = true;
+            })
+          ];
         };
       };
     };
 
-
     # TODO: make gpu passthrough stuff more configurable
     # Add binaries to path so that hooks can use it
     systemd.services.libvirtd.path =
-      let env = pkgs.buildEnv {
-        name = "qemu-hook-env";
-        paths = with pkgs; [
-          bash
-          libvirt
-          kmod
-          systemd
-          ripgrep
-          sd
-        ];
-      }; in [ env ];
+      let
+        env = pkgs.buildEnv {
+          name = "qemu-hook-env";
+          paths = with pkgs; [
+            bash
+            libvirt
+            kmod
+            systemd
+            ripgrep
+            sd
+          ];
+        };
+      in
+      [ env ];
 
     # TODO: make gpu passthrough stuff more configurable
     # # Link hooks to the correct directory

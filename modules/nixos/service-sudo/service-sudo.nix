@@ -1,4 +1,10 @@
-{ config, lib, pkgs, options, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
 with lib;
 let
   # TODO: consider making nopasswd commands authorable via cfg
@@ -20,7 +26,8 @@ let
     "/run/current-system/sw/bin/nixos-*"
   ];
 
-  getSudoConfigFile = (group:
+  getSudoConfigFile = (
+    group:
     (commands: ''
       # USER DEFINED RULES
 
@@ -28,10 +35,11 @@ let
        
       %${group} ALL=(ALL) ALL
          
-      ${concatStringsSep "\n"
-      (map (cmd: "%" + group + " ALL=(ALL) NOPASSWD:" + cmd) commands)}
-    ''));
-in {
+      ${concatStringsSep "\n" (map (cmd: "%" + group + " ALL=(ALL) NOPASSWD:" + cmd) commands)}
+    '')
+  );
+in
+{
   config.security.sudo = {
     enable = true;
     configFile = "";

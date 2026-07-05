@@ -1,4 +1,11 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   config = {
     networking.firewall.package = pkgs.iptables;
     networking.firewall.enable = true;

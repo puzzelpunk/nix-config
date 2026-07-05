@@ -1,3 +1,10 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   imports = [ ../service-homebrew/service-homebrew.nix ];
 }

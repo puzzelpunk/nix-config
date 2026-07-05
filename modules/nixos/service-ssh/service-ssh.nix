@@ -1,6 +1,13 @@
-{ config, lib, pkgs, options, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
 with pkgs.stdenv;
-with lib; {
+with lib;
+{
   imports = [ ./options.nix ];
 
   config = {

@@ -78,7 +78,7 @@ with pkgs.stdenv;
 
     ${concatStringsSep "\n" (
       lib.attrsets.mapAttrsToList (
-        name: value: ''zstyle ':completion:*' ${name} ${value}''
+        name: value: "zstyle ':completion:*' ${name} ${value}"
       ) zshInitExtraConfig.completions
     )}
   ''}
@@ -94,7 +94,7 @@ with pkgs.stdenv;
 
     ${concatStringsSep "\n" (
       lib.attrsets.mapAttrsToList (
-        name: value: ''bindkey '${value}' ${name}''
+        name: value: "bindkey '${value}' ${name}"
       ) zshInitExtraConfig.keybindings
     )}
   ''}

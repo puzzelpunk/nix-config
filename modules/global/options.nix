@@ -1,6 +1,12 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with pkgs.stdenv;
-with lib; {
+with lib;
+{
   options.cfg.os = {
     name = mkOption {
       type = types.str;

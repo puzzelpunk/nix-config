@@ -1,4 +1,11 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   config = {
     xdg.portal.enable = true;
     xdg.portal.gtkUsePortal = true;

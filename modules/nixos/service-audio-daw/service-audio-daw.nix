@@ -1,4 +1,10 @@
-{ config, lib, pkgs, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   imports = [ ./modules.nix ];
 
   config = {
@@ -7,7 +13,10 @@
     security.rtkit.enable = true;
 
     boot = {
-      kernelModules = [ "snd-seq" "snd-rawmidi" ];
+      kernelModules = [
+        "snd-seq"
+        "snd-rawmidi"
+      ];
 
       kernel.sysctl = {
         "vm.swappiness" = 10;
@@ -67,23 +76,24 @@
     systemd.user.services.pulseaudio.environment.DISPLAY = ":0";
 
     environment.variables = {
-      VST_PATH =
-        "/nix/var/nix/profiles/default/lib/vst:/var/run/current-system/sw/lib/vst:~/.vst";
-      LXVST_PATH =
-        "/nix/var/nix/profiles/default/lib/lxvst:/var/run/current-system/sw/lib/lxvst:~/.lxvst";
-      LADSPA_PATH =
-        "/nix/var/nix/profiles/default/lib/ladspa:/var/run/current-system/sw/lib/ladspa:~/.ladspa";
-      LV2_PATH =
-        "/nix/var/nix/profiles/default/lib/lv2:/var/run/current-system/sw/lib/lv2:~/.lv2";
-      DSSI_PATH =
-        "/nix/var/nix/profiles/default/lib/dssi:/var/run/current-system/sw/lib/dssi:~/.dssi";
+      VST_PATH = "/nix/var/nix/profiles/default/lib/vst:/var/run/current-system/sw/lib/vst:~/.vst";
+      LXVST_PATH = "/nix/var/nix/profiles/default/lib/lxvst:/var/run/current-system/sw/lib/lxvst:~/.lxvst";
+      LADSPA_PATH = "/nix/var/nix/profiles/default/lib/ladspa:/var/run/current-system/sw/lib/ladspa:~/.ladspa";
+      LV2_PATH = "/nix/var/nix/profiles/default/lib/lv2:/var/run/current-system/sw/lib/lv2:~/.lv2";
+      DSSI_PATH = "/nix/var/nix/profiles/default/lib/dssi:/var/run/current-system/sw/lib/dssi:~/.dssi";
     };
 
     systemd.user.services.jackaudio = {
       serviceConfig.Type = "simple";
       wantedBy = [ "default.target" ];
-      path = with pkgs; [ jack2 a2jmidid pulseaudioFull ];
-      environment = { DISPLAY = ":0"; };
+      path = with pkgs; [
+        jack2
+        a2jmidid
+        pulseaudioFull
+      ];
+      environment = {
+        DISPLAY = ":0";
+      };
       after = [ "pulseaudio.service" ];
       enable = true;
       script = ''

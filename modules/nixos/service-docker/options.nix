@@ -1,6 +1,13 @@
-{ config, lib, pkgs, options, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
 with pkgs.stdenv;
-with lib; {
+with lib;
+{
   imports = [ ../service-networking/options.nix ];
 
   options.cfg.docker = {

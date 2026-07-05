@@ -1,10 +1,16 @@
-{ config, lib, pkgs, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   services.prometheus = {
     enable = true;
     exporters = {
       node = {
         enable = true;
-        enabledCollectors = ["systemd"];
+        enabledCollectors = [ "systemd" ];
       };
     };
   };

@@ -1,6 +1,13 @@
-{ config, lib, pkgs, options, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
 with pkgs.stdenv;
-with lib; {
+with lib;
+{
   options.cfg.networking = {
     domain_name_servers = {
       primary = mkOption {
@@ -42,18 +49,20 @@ with lib; {
       };
 
       interfaces = lib.mkOption {
-        type = lib.types.listOf (lib.types.submodule {
-          options = {
-            name = lib.mkOption {
-              type = lib.types.str;
-              description = "Interface name (e.g. \"eth0\").";
+        type = lib.types.listOf (
+          lib.types.submodule {
+            options = {
+              name = lib.mkOption {
+                type = lib.types.str;
+                description = "Interface name (e.g. \"eth0\").";
+              };
+              address = lib.mkOption {
+                type = lib.types.str;
+                description = "IPv4 address for this interface.";
+              };
             };
-            address = lib.mkOption {
-              type = lib.types.str;
-              description = "IPv4 address for this interface.";
-            };
-          };
-        });
+          }
+        );
         default = [ ];
         description = ''
           List of static network interfaces, each with its own interface name and IPv4 address.

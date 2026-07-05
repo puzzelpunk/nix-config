@@ -1,6 +1,16 @@
-{ config, lib, pkgs, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   config = {
-    environment.systemPackages = with pkgs; [ libimobiledevice ifuse gvfs ];
+    environment.systemPackages = with pkgs; [
+      libimobiledevice
+      ifuse
+      gvfs
+    ];
 
     programs.adb.enable = true;
     services.gvfs.enable = true;

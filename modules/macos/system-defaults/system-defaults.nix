@@ -1,4 +1,11 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   system.keyboard.enableKeyMapping = true;
   system.defaults.NSGlobalDomain = {
     AppleMeasurementUnits = config.cfg.localization.measurement;

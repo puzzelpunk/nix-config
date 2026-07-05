@@ -1,4 +1,11 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   fonts = {
     packages = with pkgs; [
       nerd-fonts.fantasque-sans-mono

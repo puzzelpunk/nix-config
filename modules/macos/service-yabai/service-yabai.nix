@@ -1,7 +1,12 @@
 # https://github.com/koekeishiya/yabai
 # https://github.com/koekeishiya/skhd
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -15,23 +20,34 @@ let
   yabairc = "/Users/${cfg.user.name}/.config/yabai/yabairc";
   path = "/opt/homebrew/bin:/run/current-system/sw/bin:${config.environment.systemPath}";
 
-in {
+in
+{
   imports = [ ./modules.nix ];
 
   config = {
     homebrew = {
-      taps = [ "koekeishiya/formulae" "FelixKratz/formulae" ];
-      brews = [ "yabai" "skhd" "borders" ];
+      taps = [
+        "koekeishiya/formulae"
+        "FelixKratz/formulae"
+      ];
+      brews = [
+        "yabai"
+        "skhd"
+        "borders"
+      ];
     };
 
-    security.accessibilityPrograms = [ "${yabai}" "${skhd}" ];
+    security.accessibilityPrograms = [
+      "${yabai}"
+      "${skhd}"
+    ];
 
     launchd.daemons.yabai-sa = {
       script = ''
         if [ ! $(${yabai} --check-sa) ]; then
           ${yabai} --install-sa
         fi
-        
+
         ${yabai} --load-sa
       '';
 
@@ -47,16 +63,22 @@ in {
     };
 
     launchd.user.agents.yabai-sa = {
-      serviceConfig.ProgramArguments =
-        [ "/usr/bin/sudo" "${yabai}" "--load-sa" ];
-      
+      serviceConfig.ProgramArguments = [
+        "/usr/bin/sudo"
+        "${yabai}"
+        "--load-sa"
+      ];
+
       serviceConfig.RunAtLoad = true;
       serviceConfig.KeepAlive.SuccessfulExit = false;
     };
 
     launchd.user.agents.yabai = {
-      serviceConfig.ProgramArguments =
-        [ "${yabai}" "-c" "${yabairc}" ];
+      serviceConfig.ProgramArguments = [
+        "${yabai}"
+        "-c"
+        "${yabairc}"
+      ];
       serviceConfig.KeepAlive = true;
       serviceConfig.ProcessType = "Interactive";
       serviceConfig.EnvironmentVariables = {
@@ -65,8 +87,11 @@ in {
     };
 
     launchd.user.agents.skhd = {
-      serviceConfig.ProgramArguments =
-        [ "${skhd}" "-c" "${skhdrc}" ];
+      serviceConfig.ProgramArguments = [
+        "${skhd}"
+        "-c"
+        "${skhdrc}"
+      ];
       serviceConfig.KeepAlive = true;
       serviceConfig.ProcessType = "Interactive";
       serviceConfig.EnvironmentVariables = {

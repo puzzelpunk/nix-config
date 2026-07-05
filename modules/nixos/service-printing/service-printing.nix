@@ -1,4 +1,11 @@
-{ config, lib, pkgs, options, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
   imports = [ ./modules.nix ];
 
   config = {
@@ -19,6 +26,10 @@
       ];
     };
 
-    users.users."${config.cfg.user.name}".extraGroups = [ "lp" "printadmin" "scanner" ];
+    users.users."${config.cfg.user.name}".extraGroups = [
+      "lp"
+      "printadmin"
+      "scanner"
+    ];
   };
 }

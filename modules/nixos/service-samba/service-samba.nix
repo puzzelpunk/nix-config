@@ -1,5 +1,15 @@
-{ config, lib, pkgs, options, ... }: {
-  imports = [ ./modules.nix ./options.nix ];
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  ...
+}:
+{
+  imports = [
+    ./modules.nix
+    ./options.nix
+  ];
 
   config = {
     environment.systemPackages = with pkgs; [ cifs-utils ];

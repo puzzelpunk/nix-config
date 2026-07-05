@@ -37,16 +37,16 @@ with lib;
     NVM_DIR = "$HOME/.nvm";
   };
   aliases = {
-    cat = ''${pkgs.bat}/bin/bat'';
-    cd = ''z'';
-    clearhistory = ''cat /dev/null > $HOME/.zsh_history ; exit'';
-    less = ''${pkgs.bat}/bin/bat'';
-    ls = ''${pkgs.eza}/bin/eza --icons -h'';
-    lsip = ''${pkgs.curl}/bin/curl http://ipecho.net/plain; echo'';
-    lsnetwork = ''clear ; sudo ${pkgs.nmap}/bin/nmap -sS -T aggressive 192.168.0.0/24 | less'';
-    lsports = ''clear ; ${pkgs.nmap}/bin/nmap -sS -T aggressive localhost'';
-    vi = ''${pkgs.neovim}/bin/nvim'';
-    vim = ''${pkgs.neovim}/bin/nvim'';
+    cat = "${pkgs.bat}/bin/bat";
+    cd = "z";
+    clearhistory = "cat /dev/null > $HOME/.zsh_history ; exit";
+    less = "${pkgs.bat}/bin/bat";
+    ls = "${pkgs.eza}/bin/eza --icons -h";
+    lsip = "${pkgs.curl}/bin/curl http://ipecho.net/plain; echo";
+    lsnetwork = "clear ; sudo ${pkgs.nmap}/bin/nmap -sS -T aggressive 192.168.0.0/24 | less";
+    lsports = "clear ; ${pkgs.nmap}/bin/nmap -sS -T aggressive localhost";
+    vi = "${pkgs.neovim}/bin/nvim";
+    vim = "${pkgs.neovim}/bin/nvim";
     rebuild = (
       if config.cfg.os.name == "nixos" then
         "sudo nixos-rebuild switch"
