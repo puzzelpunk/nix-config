@@ -1,8 +1,11 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }:
+with pkgs.stdenv;
+with lib;
 {
   config = {
     environment.systemPackages = with pkgs; [
