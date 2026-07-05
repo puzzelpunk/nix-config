@@ -6,7 +6,7 @@
   ...
 }:
 {
-  imports = [ ./modules.nix ];
+  imports = [ ../service-avahi/service-avahi.nix ];
 
   config = {
     programs.system-config-printer.enable = true;

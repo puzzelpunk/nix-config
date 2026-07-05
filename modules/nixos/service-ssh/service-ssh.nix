@@ -25,7 +25,7 @@ with lib;
       allowSFTP = true;
       enable = true;
       openFirewall = true;
-      ports = [ config.cfg.networking.ssh.port ];
+      ports = [ config.cfg.ssh.port ];
       startWhenNeeded = true;
 
       # TODO: consider remove uneeded options here

@@ -7,7 +7,7 @@
 }:
 {
   imports = [
-    ./modules.nix
+    ../service-avahi/service-avahi.nix
     ./options.nix
   ];
 

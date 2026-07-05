@@ -22,7 +22,7 @@ let
 
 in
 {
-  imports = [ ./modules.nix ];
+  imports = [ ../service-homebrew/service-homebrew.nix ];
 
   config = {
     homebrew = {

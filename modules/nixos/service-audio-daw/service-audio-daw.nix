@@ -5,7 +5,7 @@
   ...
 }:
 {
-  imports = [ ./modules.nix ];
+  imports = [ ../service-audio/service-audio.nix ];
 
   config = {
     environment.systemPackages = with pkgs; [ bitwig-studio ];

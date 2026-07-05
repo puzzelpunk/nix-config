@@ -19,7 +19,7 @@ let
 in
 {
   imports = [
-    ./modules.nix
+    ../service-networking/service-networking.nix
     ./options.nix
   ];
 
