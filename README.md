@@ -4,9 +4,13 @@ A modular Nix configuration library for NixOS and nix-darwin, built on flakes.
 
 This repository is the **public** half of a two-repo architecture. It exports reusable module presets that a private repository consumes to build actual host configurations. No host definitions, secrets, or personal data live here.
 
-## Flakes and Presets
+## Overview
 
-This repo does **not** define any `nixosConfigurations` or `darwinConfigurations`. Instead, it exports module presets that downstream flakes can import:
+This repo is a **module library** — it contains reusable NixOS and macOS configuration modules, but no host definitions, secrets, or personal data. Those live in a separate private repository.
+
+Instead of defining `nixosConfigurations` or `darwinConfigurations`, this repo exports **module presets** — lists of modules that provide a base configuration for each platform. A private repo consumes these presets, adds its own hosts and secrets, and builds the actual systems.
+
+The two repos connect via a flake input. The private repo's `flake.nix` points to this repo, imports the presets, and references individual modules by path:
 
 ```nix
 # This repo's flake.nix outputs:
@@ -53,8 +57,6 @@ A private repo consumes these presets:
   };
 }
 ```
-
-Module paths are referenced via `${nix-config}/modules/...` interpolation, which works because `nix-config` is passed through `specialArgs`.
 
 ## Setup
 
