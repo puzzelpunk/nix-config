@@ -4,37 +4,6 @@ A modular Nix configuration library for NixOS and nix-darwin, built on flakes.
 
 This repository is the **public** half of a two-repo architecture. It exports reusable module presets that a private repository consumes to build actual host configurations. No host definitions, secrets, or personal data live here.
 
-## Architecture
-
-**🌐 Public repo** — modules & presets *(this repo)*
-
-```mermaid
-flowchart LR
-  F["flake.nix<br/>exports presets"] --> NP["nixosPresets.global<br/>NixOS base modules"]
-  F --> DP["darwinPresets.global<br/>macOS base modules"]
-  NP --> M["modules/<br/>global · common · nixos · macos<br/>reusable module library"]
-  DP --> M
-```
-
-**🔒 Private repo** — hosts, secrets, profiles
-
-```mermaid
-flowchart LR
-  PF["flake.nix<br/>entry point"] --> P["profiles/<br/>override defaults"]
-  PF --> H["hosts/<br/>per-machine configs"]
-  PF --> SE["secrets/ & SSH key<br/>agenix vault & decryptor"]
-```
-
-The private repo connects to this public repo in two ways: its `flake.nix` declares `inputs.nix-config.url` pointing here, and host configs reference individual modules via `${nix-config}/modules/...` interpolation.
-
-### Why split repos?
-
-- **Privacy**: Host configurations (hardware, filesystems, networking), encrypted secrets, and personal defaults stay private.
-- **Shareability**: Generic modules, options, and presets are publishable without leaking anything personal.
-- **Separation of concerns**: This repo defines *what a module does*. The private repo decides *which modules to use and how to configure them*.
-
-The private repo overrides generic defaults (like `cfg.user.name = "user"`) through a profile such as `profiles/personal.nix`, which sets real values like `cfg.user.name = "user"` and provides the agenix identity path.
-
 ## Flakes and Presets
 
 This repo does **not** define any `nixosConfigurations` or `darwinConfigurations`. Instead, it exports module presets that downstream flakes can import:
@@ -86,103 +55,6 @@ A private repo consumes these presets:
 ```
 
 Module paths are referenced via `${nix-config}/modules/...` interpolation, which works because `nix-config` is passed through `specialArgs`.
-
-## Modules
-
-All modules live under `modules/`, organized by platform:
-
-```
-modules/
-├── global/    # Core system config, options, and platform defaults
-├── common/    # Cross-platform modules (home-manager, fonts)
-├── nixos/     # Linux-only modules (services, desktops, hardware, software)
-└── macos/     # macOS-only modules (homebrew, yabai, system defaults)
-```
-
-**`global/`** — Core system setup: packages, user creation, zsh, timezone, nix settings, and the `cfg.*` option declarations that the rest of the modules depend on. Included in both presets.
-
-**`common/`** — Home-manager config (git, zsh, shell utilities), dotfiles, and font packages. Works on both NixOS and macOS. Imported directly by hosts via `${nix-config}/modules/common/...`.
-
-**`nixos/`** — Linux-only modules, grouped by prefix:
-- **`service-*`** — system services (ssh, docker, networking, avahi, tailscale, etc.)
-- **`desktop-environment-*`** — desktop environments (plasma, gnome, xfce)
-- **`display-manager-*`** — login managers (gdm, sddm, lightdm)
-- **`hardware-*`** — hardware drivers (nvidia)
-- **`software-*`** — software bundles (gaming, obs)
-
-**`macos/`** — Homebrew package management, yabai tiling window manager, and macOS system defaults.
-
-### Module Patterns
-
-Modules follow three patterns:
-
-**Pattern A — Flat**: no options, directly sets config values. Used for simple enable-and-configure modules.
-
-```nix
-# modules/nixos/service-avahi/service-avahi.nix
-{ ... }:
-{
-  services.avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
-}
-```
-
-**Pattern B — Options + Config**: exposes `cfg.*` options in a sibling `options.nix`, then reads them in `config`. Host configs can override defaults.
-
-```nix
-# modules/nixos/service-ssh/options.nix
-{ lib, ... }:
-with lib;
-{
-  options.cfg.ssh.port = mkOption { type = types.int; default = 22; };
-}
-
-# modules/nixos/service-ssh/service-ssh.nix
-{ config, ... }:
-{ imports = [ ./options.nix ]; config.services.openssh.ports = [ config.cfg.ssh.port ]; }
-
-# Override in a host config:
-{ cfg.ssh.port = 2222; }
-```
-
-**Pattern C — Functional import**: module is a function taking external data (like secret paths), returning a NixOS module. Used for modules that need secret injection.
-
-```nix
-# modules/nixos/service-tailscale/service-tailscale.nix
-{ tsConfig, ... }:
-{
-  config.age.secrets.ts_auth_key.file = tsConfig.tsAuthKeyAgePath;
-  config.services.tailscale.enable = true;
-}
-
-# Imported by the host with arguments:
-(import "${nix-config}/modules/nixos/service-tailscale/service-tailscale.nix" {
-  tsConfig = { tsAuthKeyPath = config.age.secrets.ts_auth_key.path; tsAuthKeyAgePath = ./secrets/ts_auth_key.age; };
-})
-```
-
-### Global Options
-
-`modules/global/options.nix` defines shared options with generic defaults. The private repo's profile overrides these with real values.
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `cfg.os.name` | `"nixos"` | OS name (`"nixos"` or `"macos"`) |
-| `cfg.os.version` | `"latest"` | OS version (→ `system.stateVersion`) |
-| `cfg.os.hostname` | `cfg.os.name` | System hostname |
-| `cfg.user.name` | `"user"` | Primary username |
-| `cfg.user.fullname` | `"User"` | Primary user's full name |
-| `cfg.user.email` | `"user@example.com"` | Primary user's email |
-| `cfg.shareduser.name` | `"shared"` | Shared files username |
-| `cfg.shareduser.group` | `"shared"` | Shared files group |
-| `cfg.localization.lang` | `"en_US.UTF-8"` | System language |
-| `cfg.localization.timezone` | `"UTC"` | System timezone |
-| `cfg.localization.latitude` | `0.0` | Location latitude |
-| `cfg.localization.longitude` | `0.0` | Location longitude |
-| `cfg.localization.keymap` | `"us"` | Console keymap |
-| `cfg.localization.measurement` | `"Metric"` | Measurement units |
-| `cfg.localization.temperature` | `"Celsius"` | Temperature units |
-
-Module-specific options (like `cfg.ssh.port`, `cfg.docker.*`, `cfg.networking.*`) are defined in their respective `options.nix` files.
 
 ## Setup
 
@@ -334,6 +206,134 @@ The `age.identityPaths` setting lives in your profile, pointing to the SSH key i
 age.identityPaths = [
   "${config.users.users."${config.cfg.user.name}".home}/PRIVATE_REPO/_/id_rsa"
 ];
+```
+
+## Global Options
+
+`modules/global/options.nix` defines shared options with generic defaults. The private repo's profile overrides these with real values.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `cfg.os.name` | `"nixos"` | OS name (`"nixos"` or `"macos"`) |
+| `cfg.os.version` | `"latest"` | OS version (→ `system.stateVersion`) |
+| `cfg.os.hostname` | `cfg.os.name` | System hostname |
+| `cfg.user.name` | `"user"` | Primary username |
+| `cfg.user.fullname` | `"User"` | Primary user's full name |
+| `cfg.user.email` | `"user@example.com"` | Primary user's email |
+| `cfg.shareduser.name` | `"shared"` | Shared files username |
+| `cfg.shareduser.group` | `"shared"` | Shared files group |
+| `cfg.localization.lang` | `"en_US.UTF-8"` | System language |
+| `cfg.localization.timezone` | `"UTC"` | System timezone |
+| `cfg.localization.latitude` | `0.0` | Location latitude |
+| `cfg.localization.longitude` | `0.0` | Location longitude |
+| `cfg.localization.keymap` | `"us"` | Console keymap |
+| `cfg.localization.measurement` | `"Metric"` | Measurement units |
+| `cfg.localization.temperature` | `"Celsius"` | Temperature units |
+
+Module-specific options (like `cfg.ssh.port`, `cfg.docker.*`, `cfg.networking.*`) are defined in their respective `options.nix` files.
+
+## Architecture
+
+**🌐 Public repo** — modules & presets *(this repo)*
+
+```mermaid
+flowchart LR
+  F["flake.nix<br/>exports presets"] --> NP["nixosPresets.global<br/>NixOS base modules"]
+  F --> DP["darwinPresets.global<br/>macOS base modules"]
+  NP --> M["modules/<br/>global · common · nixos · macos<br/>reusable module library"]
+  DP --> M
+```
+
+**🔒 Private repo** — hosts, secrets, profiles
+
+```mermaid
+flowchart LR
+  PF["flake.nix<br/>entry point"] --> P["profiles/<br/>override defaults"]
+  PF --> H["hosts/<br/>per-machine configs"]
+  PF --> SE["secrets/ & SSH key<br/>agenix vault & decryptor"]
+```
+
+The private repo connects to this public repo in two ways: its `flake.nix` declares `inputs.nix-config.url` pointing here, and host configs reference individual modules via `${nix-config}/modules/...` interpolation.
+
+### Why split repos?
+
+- **Privacy**: Host configurations (hardware, filesystems, networking), encrypted secrets, and personal defaults stay private.
+- **Shareability**: Generic modules, options, and presets are publishable without leaking anything personal.
+- **Separation of concerns**: This repo defines *what a module does*. The private repo decides *which modules to use and how to configure them*.
+
+The private repo overrides generic defaults (like `cfg.user.name = "user"`) through a profile such as `profiles/personal.nix`, which sets real values like `cfg.user.name = "user"` and provides the agenix identity path.
+
+## Modules
+
+All modules live under `modules/`, organized by platform:
+
+```
+modules/
+├── global/    # Core system config, options, and platform defaults
+├── common/    # Cross-platform modules (home-manager, fonts)
+├── nixos/     # Linux-only modules (services, desktops, hardware, software)
+└── macos/     # macOS-only modules (homebrew, yabai, system defaults)
+```
+
+**`global/`** — Core system setup: packages, user creation, zsh, timezone, nix settings, and the `cfg.*` option declarations that the rest of the modules depend on. Included in both presets.
+
+**`common/`** — Home-manager config (git, zsh, shell utilities), dotfiles, and font packages. Works on both NixOS and macOS. Imported directly by hosts via `${nix-config}/modules/common/...`.
+
+**`nixos/`** — Linux-only modules, grouped by prefix:
+- **`service-*`** — system services (ssh, docker, networking, avahi, tailscale, etc.)
+- **`desktop-environment-*`** — desktop environments (plasma, gnome, xfce)
+- **`display-manager-*`** — login managers (gdm, sddm, lightdm)
+- **`hardware-*`** — hardware drivers (nvidia)
+- **`software-*`** — software bundles (gaming, obs)
+
+**`macos/`** — Homebrew package management, yabai tiling window manager, and macOS system defaults.
+
+### Module Patterns
+
+Modules follow three patterns:
+
+**Pattern A — Flat**: no options, directly sets config values. Used for simple enable-and-configure modules.
+
+```nix
+# modules/nixos/service-avahi/service-avahi.nix
+{ ... }:
+{
+  services.avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
+}
+```
+
+**Pattern B — Options + Config**: exposes `cfg.*` options in a sibling `options.nix`, then reads them in `config`. Host configs can override defaults.
+
+```nix
+# modules/nixos/service-ssh/options.nix
+{ lib, ... }:
+with lib;
+{
+  options.cfg.ssh.port = mkOption { type = types.int; default = 22; };
+}
+
+# modules/nixos/service-ssh/service-ssh.nix
+{ config, ... }:
+{ imports = [ ./options.nix ]; config.services.openssh.ports = [ config.cfg.ssh.port ]; }
+
+# Override in a host config:
+{ cfg.ssh.port = 2222; }
+```
+
+**Pattern C — Functional import**: module is a function taking external data (like secret paths), returning a NixOS module. Used for modules that need secret injection.
+
+```nix
+# modules/nixos/service-tailscale/service-tailscale.nix
+{ tsConfig, ... }:
+{
+  config.age.secrets.ts_auth_key.file = tsConfig.tsAuthKeyAgePath;
+  config.services.tailscale.enable = true;
+}
+
+# Imported by the host with arguments:
+(import "${nix-config}/modules/nixos/service-tailscale/service-tailscale.nix" {
+  tsConfig = { tsAuthKeyPath = config.age.secrets.ts_auth_key.path; tsAuthKeyAgePath = ./secrets/ts_auth_key.age; };
+})
 ```
 
 ## Code Style
