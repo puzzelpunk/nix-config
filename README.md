@@ -6,25 +6,46 @@ This repository is the **public** half of a two-repo architecture. It exports re
 
 ## Architecture
 
-```
-┌─────────────────────────────┐       ┌──────────────────────────────────┐
-│  _unixconf_nix  (public)   │       │  _nix-private  (private)         │
-│                             │       │                                  │
-│  flake.nix                  │       │  flake.nix                       │
-│  ├── nixosPresets.global    │◄──────│  inputs.nix-config = this repo  │
-│  └── darwinPresets.global   │       │  ├── imports nixosPresets       │
-│                             │       │  ├── imports darwinPresets       │
-│  modules/                   │       │  └── defines hosts              │
-│  ├── global/  (shared)      │       │                                  │
-│  ├── common/  (shared)      │       │  hosts/                          │
-│  ├── nixos/   (Linux)       │       │  ├── neurowarp/                  │
-│  └── macos/   (macOS)       │       │  ├── ultracore/                  │
-│                             │       │  └── forte/                      │
-│  assets/                    │       │                                  │
-│  scripts/                   │       │  profiles/personal.nix           │
-│                             │       │  secrets/                         │
-│                             │       │  _/  (SSH key submodule)         │
-└─────────────────────────────┘       └──────────────────────────────────┘
+```mermaid
+graph LR
+  subgraph Public["_unixconf_nix (public)"]
+    direction TB
+    F["flake.nix"]
+    NP["nixosPresets.global"]
+    DP["darwinPresets.global"]
+    M["modules/"]
+    G["global/ (shared)"]
+    C["common/ (shared)"]
+    N["nixos/ (Linux)"]
+    MC["macos/ (macOS)"]
+    A["assets/"]
+    S["scripts/"]
+
+    F --> NP & DP
+    M --> G & C & N & MC
+  end
+
+  subgraph Private["_nix-private (private)"]
+    direction TB
+    PF["flake.nix"]
+    H["hosts/"]
+    NW["neurowarp/"]
+    UC["ultracore/"]
+    FT["forte/"]
+    P["profiles/personal.nix"]
+    SE["secrets/"]
+    SK["_/ (SSH key submodule)"]
+
+    H --> NW & UC & FT
+  end
+
+  Private -->|"inputs.nix-config"| Public
+  Private -->|"imports presets"| NP
+  Private -->|"imports presets"| DP
+  Private -->|"${nix-config}/modules/..."| M
+
+  style Public fill:#2d333b,stroke:#768390,color:#adbac7
+  style Private fill:#2d333b,stroke:#768390,color:#adbac7
 ```
 
 ### Why split repos?
