@@ -7,45 +7,26 @@ This repository is the **public** half of a two-repo architecture. It exports re
 ## Architecture
 
 ```mermaid
-graph LR
-  subgraph Public["_unixconf_nix (public)"]
-    direction TB
-    F["flake.nix"]
-    NP["nixosPresets.global"]
-    DP["darwinPresets.global"]
-    M["modules/"]
-    G["global/ (shared)"]
-    C["common/ (shared)"]
-    N["nixos/ (Linux)"]
-    MC["macos/ (macOS)"]
-    A["assets/"]
-    S["scripts/"]
-
-    F --> NP & DP
-    M --> G & C & N & MC
+graph TD
+  subgraph Private["🔒 _nix-private"]
+    PF["flake.nix"] --> P["profiles/personal.nix"]
+    PF --> H["hosts/"]
+    PF --> SE["secrets/ & _/ SSH key"]
+    H --> NW["neurowarp"] & UC["ultracore"] & FT["forte"]
   end
 
-  subgraph Private["_nix-private (private)"]
-    direction TB
-    PF["flake.nix"]
-    H["hosts/"]
-    NW["neurowarp/"]
-    UC["ultracore/"]
-    FT["forte/"]
-    P["profiles/personal.nix"]
-    SE["secrets/"]
-    SK["_/ (SSH key submodule)"]
-
-    H --> NW & UC & FT
+  subgraph Public["🌐 _unixconf_nix"]
+    F["flake.nix"] --> NP["nixosPresets.global"]
+    F --> DP["darwinPresets.global"]
+    NP & DP --> M["modules/"]
+    M --> G["global/"] & C["common/"] & N["nixos/"] & MC["macos/"]
   end
 
   Private -->|"inputs.nix-config"| Public
-  Private -->|"imports presets"| NP
-  Private -->|"imports presets"| DP
-  Private -->|"${nix-config}/modules/..."| M
-
-  style Public fill:#2d333b,stroke:#768390,color:#adbac7
-  style Private fill:#2d333b,stroke:#768390,color:#adbac7
+  P -->|"overrides cfg.*"| NP
+  H -->|"imports presets"| NP
+  H -->|"imports presets"| DP
+  H -->|"${nix-config}/modules/..."| M
 ```
 
 ### Why split repos?
