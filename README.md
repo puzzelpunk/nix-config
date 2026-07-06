@@ -263,7 +263,7 @@ The private repo connects to this public repo in two ways: its `flake.nix` decla
 - **Shareability**: Generic modules, options, and presets are publishable without leaking anything personal.
 - **Separation of concerns**: This repo defines *what a module does*. The private repo decides *which modules to use and how to configure them*.
 
-The private repo overrides generic defaults (like `cfg.user.name = "user"`) through a profile such as `profiles/personal.nix`, which sets real values like `cfg.user.name = "user"` and provides the agenix identity path.
+The private repo overrides generic defaults (like `cfg.user.name = "user"`) through a profile such as `profiles/personal.nix`, which sets real values and provides the agenix identity path.
 
 ## Modules
 
