@@ -9,25 +9,27 @@ This repository is the **public** half of a two-repo architecture. It exports re
 ```mermaid
 graph TD
   subgraph Private["🔒 Private repo — hosts, secrets, profiles"]
-    direction TB
     PF["flake.nix"]
     P["profiles/ — overrides cfg.* defaults"]
     H["hosts/ — per-machine configs"]
     SE["secrets/ & SSH key"]
-    PF --> P & H & SE
   end
 
   subgraph Public["🌐 Public repo — modules & presets (this repo)"]
-    direction TB
     F["flake.nix"]
     NP["nixosPresets.global"]
     DP["darwinPresets.global"]
     M["modules/"]
-    F --> NP & DP
-    NP & DP --> M
   end
 
-  Private -->|"inputs.nix-config"| Public
+  PF --> P
+  PF --> H
+  PF --> SE
+  F --> NP
+  F --> DP
+  NP --> M
+  DP --> M
+  PF -->|"inputs.nix-config"| F
 ```
 
 ### Why split repos?
