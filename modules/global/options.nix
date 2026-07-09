@@ -89,6 +89,18 @@ with lib;
       default = "user@example.com";
       description = "Email for the main user on the system";
     };
+
+    uid = mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      description = "User ID for the main user on the system";
+    };
+
+    gid = mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      description = "Group ID for the main user on the system";
+    };
   };
   options.cfg.shareduser = {
     name = mkOption {

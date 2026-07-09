@@ -43,6 +43,12 @@ with lib;
           { }
       )
       (
+        if config.cfg.os.name == "nixos" && config.cfg.user.uid != null then
+          { uid = config.cfg.user.uid; }
+        else
+          { }
+      )
+      (
         if config.cfg.os.name == "macos" then
           {
             home = "/Users/${config.cfg.user.name}";
@@ -64,6 +70,12 @@ with lib;
           {
             name = config.cfg.user.name;
           }
+        else
+          { }
+      )
+      (
+        if config.cfg.os.name == "nixos" && config.cfg.user.gid != null then
+          { gid = config.cfg.user.gid; }
         else
           { }
       )
