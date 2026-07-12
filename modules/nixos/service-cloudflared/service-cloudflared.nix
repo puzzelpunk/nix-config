@@ -39,19 +39,6 @@ let
     ping = ping;
   };
 
-  fetchOriginCert =
-    subdomain:
-    pkgs.replaceVars ./scripts/fetch-origin-cert.sh {
-      subdomain = subdomain;
-      homeDir = homeDir;
-      emailPath = emailPath;
-      apiPath = apiPath;
-      curl = curl;
-      jq = jq;
-      bash = bash;
-      ping = ping;
-    };
-
   cloudflareUpdateDNSScript = pkgs.replaceVars ./scripts/update-dns.sh {
     tunnelName = tunnelName;
     homeDir = homeDir;
@@ -115,12 +102,6 @@ let
       jq = jq;
       config_file = mkConfigFile;
     };
-
-  ingressDomains = builtins.attrNames config.services.cloudflared.tunnels.${tunnelName}.ingress;
-
-  cloudflareOriginCertsScript = builtins.concatStringsSep "\n${bash} " (
-    map fetchOriginCert ingressDomains
-  );
 in
 {
   age.secrets = {
@@ -138,18 +119,6 @@ in
       ${bash} ${createCloudflaredHome}
       ${bash} ${fetchOrCreateTunnel}
       ${bash} ${createExecStartScript}
-    '';
-    serviceConfig.Type = "oneshot";
-    serviceConfig.RemainAfterExit = true;
-  };
-
-  systemd.services."cloudflared-origin-certs-${tunnelName}" = {
-    description = "Fetch Origin CA certificates for Cloudflare tunnel ${tunnelName} domains";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-    requires = [ "network-online.target" ];
-    script = ''
-      ${bash} ${cloudflareOriginCertsScript}
     '';
     serviceConfig.Type = "oneshot";
     serviceConfig.RemainAfterExit = true;
