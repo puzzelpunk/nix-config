@@ -43,10 +43,7 @@ in
             exit 0
         fi
 
-        AUTH_KEY=$(cat "${tsAuthKeyPath}")
-
-        # otherwise authenticate with tailscale
-        ${tailscale}/bin/tailscale up -authkey "$AUTH_KEY"
+        ${tailscale}/bin/tailscale up -authkey "$(cat "${tsAuthKeyPath}")"
       '';
     };
 
