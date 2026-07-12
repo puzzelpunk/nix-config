@@ -50,5 +50,17 @@ with lib;
         description = "Docker IP Tables Control";
       };
     };
+
+    shutdownTimeout = mkOption {
+      type = types.int;
+      default = 30;
+      description = ''
+        Seconds the Docker daemon waits for containers to stop gracefully when
+        the daemon itself shuts down (e.g. during system poweroff).  Maps to
+        the `shutdown-timeout` key in daemon.json (Docker default is 15).
+        Higher values give databases and other stateful services more time to
+        flush data during a UPS-triggered shutdown.
+      '';
+    };
   };
 }
