@@ -75,7 +75,6 @@ in
   config = mkMerge [
     {
       # ───────── Kernel / KVM modules ─────────
-      boot.kernelPackages = mkDefault cfg.host.kernel.package;
       boot.kernelModules = cfg.host.kernel.extraModules ++ optional iommuActive "vfio-pci";
       boot.kernelParams =
         cfg.host.kernel.extraParams

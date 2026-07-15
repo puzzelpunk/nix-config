@@ -518,12 +518,6 @@ in
     kernel = mkOption {
       type = types.submodule {
         options = {
-          package = mkOption {
-            type = types.attrs;
-            default = pkgs.linuxPackages_latest;
-            defaultText = literalExpression "pkgs.linuxPackages_latest";
-            description = "Kernel packages to use on this KVM host.";
-          };
           extraModules = mkOption {
             type = types.listOf types.str;
             default = [ ];
