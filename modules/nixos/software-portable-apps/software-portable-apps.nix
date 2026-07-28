@@ -8,8 +8,9 @@
 {
   config = {
     xdg.portal.enable = true;
-    xdg.portal.gtkUsePortal = true;
-    xdg.portal.extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
     services.flatpak.enable = true;
+    programs.appimage.enable = true;
+    programs.appimage.binfmt = true;
+    programs.appimage.package = pkgs.appimage-run;
   };
 }
