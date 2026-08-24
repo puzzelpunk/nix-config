@@ -67,6 +67,10 @@
         home = ./modules/common/home/home.nix;
         dotfiles = ./modules/common/home/dotfiles.nix;
         fonts = ./modules/common/fonts/fonts.nix;
+        # Hermes Agent — Home Manager (workstation) preset. Requires the
+        # upstream `hermes-agent.homeManagerModules.default` to be imported
+        # alongside (see module header).
+        hermes = ./modules/common/home/hermes.nix;
       };
     };
 }
