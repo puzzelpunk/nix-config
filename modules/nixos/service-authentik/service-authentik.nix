@@ -508,7 +508,15 @@ in
         };
         path = [ pkgs.coreutils ];
         script = concatStringsSep "\n" (
-          mapAttrsToList mkProviderSecretSetup cfg.providerSecrets
+          # Must cat the DECRYPTED runtime path (config.age.secrets.<name>.path
+          # → /run/agenix/...), NOT the option value — that value is the .age
+          # file in the Nix store, and feeding ciphertext to --setenv makes
+          # systemd-run reject the multi-line env assignment
+          # ("Cannot assign environment variable PROVIDER_SECRET=...").
+          mapAttrsToList (name: _:
+            mkProviderSecretSetup name
+              config.age.secrets."authentik-provider-secret-${name}".path
+          ) cfg.providerSecrets
         );
       };
     })
