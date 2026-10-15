@@ -76,6 +76,12 @@ let
   # declared value — the outpost-token pattern for OAuth2 clients: the age
   # file is the single source of truth for BOTH authentik and the consumer.
   hasProviderSecrets = cfg.providerSecrets != { };
+  # Fleet users: the module generates a users blueprint (existence only —
+  # username/email/type; passwords never live in it) and a password-sync
+  # oneshot (hashes+sets when differing). Any consumer module can append
+  # entries via attrsOf merge.
+  hasUsers = cfg.users != { };
+  hasUserPasswords = any (u: u.passwordFile != null) (attrValues cfg.users);
 
   # Upstream module present (host imported authentik-nix.nixosModules.default).
   # Checked via `options` (declarations) not `config` so a host without the
@@ -264,6 +270,48 @@ else:
 '
   '';
 
+  # Generates the shell script to set one fleet user's password (`manage.py
+  # shell` in a transient unit as the authentik user). Poll-waits for the
+  # user (the users blueprint applies via the worker asynchronously after
+  # boot), then hashes+sets ONLY when the stored hash doesn't match the
+  # declared password — set_password rehashes, and a rehash invalidates
+  # other sessions, which is why this writes unconditionally.
+  mkUserPasswordSetup = name: secretPath: ''
+    USER_PASSWORD=$(cat ${secretPath})
+    ${config.systemd.package}/bin/systemd-run --wait --pipe --collect \
+      ${concatStringsSep " \\\n      " akOptions} \
+      --setenv USER_NAME="${name}" \
+      --setenv USER_PASSWORD="$USER_PASSWORD" \
+      --working-directory /var/lib/authentik \
+      -- ${managePy} shell -c '
+import os
+import time
+from authentik.core.models import User
+
+name = os.environ["USER_NAME"]
+secret = os.environ["USER_PASSWORD"]
+
+user = None
+for _ in range(90):
+    user = User.objects.filter(username=name).first()
+    if user is not None:
+        break
+    time.sleep(2)
+
+if user is None:
+    raise SystemExit(
+        f"User {name!r} did not exist after 180s (users blueprint not applied?)"
+    )
+
+if user.check_password(secret):
+    print(f"user {name}: password already in sync")
+else:
+    user.set_password(secret)
+    user.save(update_fields=["password"])
+    print(f"user {name}: password set")
+'
+  '';
+
   # Non-secret env = caller env + the bootstrap email (AUTHENTIK_BOOTSTRAP_EMAIL),
   # applied to all three authentik units via systemd Environment.
   effectiveEnvironment = cfg.environment
@@ -386,6 +434,10 @@ in
         {
           assertion = !hasProviderSecrets || hasAgenix;
           message = "cfg.authentik.providerSecrets requires agenix on the host (age files are read at runtime to sync provider client secrets).";
+        }
+        {
+          assertion = !hasUserPasswords || hasAgenix;
+          message = "cfg.authentik.users.*.passwordFile requires agenix on the host (age files are read at runtime to hash+set user passwords).";
         }
         {
           assertion = cfg.apps == { } || cfg.outposts.proxy.enable;
@@ -517,6 +569,57 @@ in
             mkProviderSecretSetup name
               config.age.secrets."authentik-provider-secret-${name}".path
           ) cfg.providerSecrets
+        );
+      };
+    })
+
+    # ── Fleet users: blueprint + password sync ──────────────────────────────
+    # The users blueprint goes through the ATTRSET branch of cfg.blueprints
+    # (settingsFormat-rendered, stable filename — no !KeyOf-style tags hold
+    # here because existence-only entries never need cross-entry pk refs).
+    # The password oneshot runs after the worker and uses check_password to
+    # skip no-op rehashes.
+    (mkIf hasUsers {
+      cfg.authentik.blueprints."nix-config-users" = {
+        version = 1;
+        metadata.name = "nix-config-users";
+        metadata.labels."blueprints.goauthentik.io/instantiate" = "true";
+        entries = flatten (mapAttrsToList (name: u: [{
+          model = "authentik_core.user";
+          identifiers.username = name;
+          state = "present";
+          attrs = {
+            name = if u.givenName != null then u.givenName else name;
+            email = u.email;
+            type = u.type;
+            path = "users";
+          };
+        }]) config.cfg.authentik.users);
+      };
+
+      age.secrets = mapAttrs' (name: u:
+        nameValuePair "authentik-user-password-${name}" {
+          file = u.passwordFile;
+        }
+      ) (filterAttrs (_: u: u.passwordFile != null) cfg.users);
+
+      systemd.services.authentik-user-password-setup = mkIf hasUserPasswords {
+        description = "Sync declarative authentik user passwords from agenix";
+        after = [ "authentik-migrate.service" "authentik-worker.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          TimeoutStartSec = 300;
+        };
+        path = [ pkgs.coreutils ];
+        script = concatStringsSep "\n" (
+          flatten (mapAttrsToList (name: u:
+            optional (u.passwordFile != null) (
+              mkUserPasswordSetup name
+                config.age.secrets."authentik-user-password-${name}".path
+            )
+          ) cfg.users)
         );
       };
     })

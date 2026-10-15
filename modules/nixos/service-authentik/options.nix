@@ -431,6 +431,56 @@ with lib;
       '';
     };
 
+    # ── Fleet users: declarative authentik users ────────────────────────────
+    users = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          email = mkOption {
+            type = types.str;
+            description = ''
+              Account email. OIDC apps match users by this claim and
+              authentik's login asks for it — pick a value worth typing.
+            '';
+          };
+          givenName = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Display name; defaults to the username.";
+          };
+          type = mkOption {
+            type = types.enum [ "internal" "external" "service" ];
+            default = "internal";
+            description = ''
+              internal = interactive human account; service = machine account
+              (no password expected, authenticate via API tokens instead).
+            '';
+          };
+          passwordFile = mkOption {
+            type = types.nullOr types.path;
+            default = null;
+            description = ''
+              Age-encrypted file holding the raw password. A boot-time oneshot
+              (authentik-user-password-setup) poll-waits for the user (the
+              users blueprint applies via the worker asynchronously) and
+              hashes+sets the password ONLY when it differs — rotating the
+              age file + rebuild changes the password; untouched, nothing
+              rehashes and no sessions drop. authentik hashes passwords
+              server-side; the declared file remains the single source of
+              truth.
+            '';
+          };
+        };
+      });
+      default = { };
+      description = ''
+        Declarative users, keyed by username. The module generates a users
+        blueprint (applied on worker boot) and a password-sync oneshot per
+        user with a passwordFile. akadmin (seeded by cfg.bootstrap) remains
+        the break-glass admin, not a daily driver. Consumer modules may add
+        their own entries — attrsOf merges across modules.
+      '';
+    };
+
     openFirewall = mkOption {
       type = types.bool;
       default = true;
