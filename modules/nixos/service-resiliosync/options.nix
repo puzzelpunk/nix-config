@@ -31,8 +31,12 @@ with lib;
     };
     webPort = mkOption {
       type = types.int;
-      default = 9000;
-      description = "The web UI port for Resilio Sync.";
+      default = 8888;
+      description = ''
+        The web UI port for Resilio Sync. Defaults to 8888 (Resilio's
+        conventional port) — NOT 9000, which collides with authentik's
+        default HTTP listener (AUTHENTIK_LISTEN__HTTP) on hosts running both.
+      '';
     };
     httpListenAddr = mkOption {
       type = types.str;
