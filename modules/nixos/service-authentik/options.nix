@@ -414,6 +414,23 @@ with lib;
       '';
     };
 
+    # ── Provider client secrets (the outpost-token pattern for OAuth2) ───────
+    providerSecrets = mkOption {
+      type = types.attrsOf types.path;
+      default = { };
+      description = ''
+        OAuth2 provider client secrets to enforce, keyed by provider NAME —
+        each value is an age-encrypted file holding the raw client secret.
+        A boot-time oneshot (authentik-provider-secret-setup) waits for the
+        provider to exist (declare it via cfg.authentik.blueprints, or make
+        it in the UI) and overwrites its client_secret with the file's value
+        — the outpost-token pattern: the age file is the single source of
+        truth for authentik AND the consumer app, so no UI copy step exists.
+        Consumer units should order after
+        authentik-provider-secret-setup.service. Requires agenix.
+      '';
+    };
+
     openFirewall = mkOption {
       type = types.bool;
       default = true;

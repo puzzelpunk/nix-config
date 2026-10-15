@@ -70,6 +70,12 @@ let
     };
   hasOutpostTokens = outpostTokens != { };
   needsAssembly = hasServerSecrets || hasOutpostTokens;
+  # OAuth2 provider client secrets (providerSecrets): name → age file. The
+  # authentik-provider-secret-setup oneshot waits for the provider (created
+  # by a blueprint or manually) and overwrites its client_secret with the
+  # declared value — the outpost-token pattern for OAuth2 clients: the age
+  # file is the single source of truth for BOTH authentik and the consumer.
+  hasProviderSecrets = cfg.providerSecrets != { };
 
   # Upstream module present (host imported authentik-nix.nixosModules.default).
   # Checked via `options` (declarations) not `config` so a host without the
@@ -213,6 +219,51 @@ print(f"Outpost {name}: token set (created={created})")
 '
   '';
 
+  # Generates the shell script to overwrite one OAuth2 provider's
+  # client_secret with the declared value (`manage.py shell` in a transient
+  # unit as the authentik user). The provider row itself comes from a
+  # blueprint (or the UI) — this poll-waits for it to appear (worker applies
+  # blueprints asynchronously after boot), then overwrites the secret if it
+  # differs. client_secret is a plain CharField in authentik (no hashing /
+  # column encryption), so the ORM write is authoritative. Idempotent + safe
+  # to re-run on every boot.
+  mkProviderSecretSetup = name: secretPath: ''
+    PROVIDER_SECRET=$(cat ${secretPath})
+    ${config.systemd.package}/bin/systemd-run --wait --pipe --collect \
+      ${concatStringsSep " \\\n      " akOptions} \
+      --setenv PROVIDER_NAME="${name}" \
+      --setenv PROVIDER_SECRET="$PROVIDER_SECRET" \
+      --working-directory /var/lib/authentik \
+      -- ${managePy} shell -c '
+import os
+import time
+from authentik.providers.oauth2.models import OAuth2Provider
+
+name = os.environ["PROVIDER_NAME"]
+secret = os.environ["PROVIDER_SECRET"]
+
+provider = None
+for _ in range(90):
+    try:
+        provider = OAuth2Provider.objects.get(name=name)
+        break
+    except OAuth2Provider.DoesNotExist:
+        time.sleep(2)
+
+if provider is None:
+    raise SystemExit(
+        f"OAuth2Provider {name!r} did not exist after 180s (blueprint not applied?)"
+    )
+
+if provider.client_secret == secret:
+    print(f"provider {name}: client_secret already in sync")
+else:
+    provider.client_secret = secret
+    provider.save(update_fields=["client_secret"])
+    print(f"provider {name}: client_secret overwritten")
+'
+  '';
+
   # Non-secret env = caller env + the bootstrap email (AUTHENTIK_BOOTSTRAP_EMAIL),
   # applied to all three authentik units via systemd Environment.
   effectiveEnvironment = cfg.environment
@@ -333,6 +384,10 @@ in
           message = "cfg.authentik.outposts.ldap.enable requires outposts.ldap.tokenKeyFile (an age file containing the raw token key) and agenix on the host.";
         }
         {
+          assertion = !hasProviderSecrets || hasAgenix;
+          message = "cfg.authentik.providerSecrets requires agenix on the host (age files are read at runtime to sync provider client secrets).";
+        }
+        {
           assertion = cfg.apps == { } || cfg.outposts.proxy.enable;
           message = "cfg.authentik.apps requires outposts.proxy.enable + outposts.proxy.tokenKeyFile — apps are auto-assigned to the proxy outpost via blueprint.";
         }
@@ -396,6 +451,13 @@ in
       }) outpostTokens;
     })
 
+    (mkIf hasProviderSecrets {
+      age.secrets = mapAttrs' (name: v:
+        nameValuePair "authentik-provider-secret-${name}" {
+          file = v;
+        }) cfg.providerSecrets;
+    })
+
     (mkIf needsAssembly {
       systemd.services.authentik-secrets = {
         description = "Assemble authentik environment files from agenix secrets";
@@ -427,6 +489,27 @@ in
             ) outpostTokens
           )}
         '';
+      };
+    })
+
+    # ── Provider client secret sync ─────────────────────────────────────────
+    # Overwrite OAuth2Provider.client_secret from age files (providerSecrets).
+    # Poll-waits for the provider (blueprints apply via the worker
+    # asynchronously after boot); consumer units order after this unit.
+    (mkIf hasProviderSecrets {
+      systemd.services.authentik-provider-secret-setup = {
+        description = "Sync declarative OAuth2 provider client secrets from agenix";
+        after = [ "authentik-migrate.service" "authentik-worker.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          TimeoutStartSec = 300;
+        };
+        path = [ pkgs.coreutils ];
+        script = concatStringsSep "\n" (
+          mapAttrsToList mkProviderSecretSetup cfg.providerSecrets
+        );
       };
     })
 
