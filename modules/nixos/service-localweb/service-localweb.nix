@@ -35,6 +35,13 @@ let
   # Stable secret name per vhost (server_name → attr key / /run/agenix filename).
   secretName = name: "localweb-${builtins.replaceStrings [ "." ] [ "-" ] name}";
 
+  # Vhosts terminating TLS (server_name → tls bool true), and the ACME cert
+  # attrkey for a vhost (dots → dashes, so cert names stay valid unit-name
+  # components).
+  tlsVhosts = filterAttrs (_: v: v.tls) cfg.vhosts;
+  haveTlsVhosts = tlsVhosts != { };
+  certName = name: builtins.replaceStrings [ "." ] [ "-" ] name;
+
   # Root "/" location for a vhost: proxyPass to the backend, recommended proxy
   # headers, and proxy_ssl_verify off when the upstream speaks HTTPS (self-signed
   # / internal certs — e.g. authentik on :9443). The root location is owned by
@@ -120,18 +127,33 @@ in
           faExtra = optionalAttrs (v.forwardAuth != null) {
             extraConfig = "error_page 401 = @authentik_login;";
           };
+          # TLS vhosts: nginx terminates :443 with the ACME cert while the
+          # backend keeps receiving plain http — X-Forwarded-Proto
+          # (recommendedProxySettings emits $scheme) then reads https
+          # downstream, which app's with prod-mode forced-Secure cookies
+          # (outline) require. :80 forceSSLs so plain-http navigations land
+          # on TLS; DNS-01 renewal never needs :80, so the redirect can't
+          # break ACME either.
+          listen = if v.tls then [
+            { addr = "0.0.0.0"; port = 80; }
+            { addr = "0.0.0.0"; port = 443; ssl = true; }
+          ] else [ { addr = "0.0.0.0"; port = 80; } ];
         in
-        {
-          listen = [ { addr = "0.0.0.0"; port = 80; } ];
+        ({
+          inherit listen;
           locations = { "/" = rootLocation v; }
             // forwardAuthLocations v
             // v.extraLocations;
+        }
+        // optionalAttrs v.tls {
+          useACMEHost = certName name;
+          forceSSL = true;
         }
         // optionalAttrs (v.extraConfig != "") { extraConfig = v.extraConfig; }
         // faExtra
         // optionalAttrs (v.basicAuthFile != null && hasAgenix) {
           basicAuthFile = config.age.secrets.${secretName name}.path;
-        }
+        })
       ) cfg.vhosts;
 
       # Shared subdomain port — every vhost is reachable by name once open.
@@ -149,12 +171,50 @@ in
       ) authedVhosts;
     })
 
+    # ACME DNS-01 certificates for TLS vhosts. DNS-01 only writes TXT records
+    # in the DNS zone — the origin keeps plain http, so these certs never
+    # interact with Cloudflare-tunnelled public origins (no double-TLS, no
+    # origin-vs-edge mismatch). Credential wiring goes through systemd's
+    # credential indirection (this channel's security.acme renamed
+    # credentialsFile → credentialFiles, whose keys must be <VAR>_FILE/
+    # <VAR>_PATH): each dnsCredentials entry maps the env var name lego's DNS
+    # provider expects (e.g. CLOUDFLARE_API_KEY) to an age file, declared
+    # here and bound as <VAR>_FILE for the acme units — the acme service
+    # resolves the file content into <VAR> itself.
+    (mkIf haveTlsVhosts {
+      age.secrets = mapAttrs' (envVar: v:
+        nameValuePair envVar {
+          file = v;
+        }) cfg.acme.dnsCredentials;
+
+      security.acme.certs = mapAttrs' (name: v:
+        nameValuePair (certName name) {
+          domain = name;
+          dnsProvider = cfg.acme.dnsProvider;
+          credentialFiles = mapAttrs' (envVar: _v:
+            nameValuePair "${envVar}_FILE" (config.age.secrets.${envVar}.path)
+          ) cfg.acme.dnsCredentials;
+          group = "nginx";
+          reloadServices = [ "nginx" ];
+        }) tlsVhosts;
+
+      networking.firewall.allowedTCPPorts = [ 443 ];
+    })
+
     # An authed vhost requires agenix on the host (to decrypt the htpasswd).
     {
       assertions = [
         {
           assertion = !(any (v: v.basicAuthFile != null) (attrValues cfg.vhosts)) || hasAgenix;
           message = "cfg.localweb.vhosts.*.basicAuthFile requires agenix on the host (to decrypt the htpasswd).";
+        }
+        {
+          assertion = !haveTlsVhosts || cfg.acme.dnsCredentials != { };
+          message = "cfg.localweb.vhosts.*.tls requires cfg.localweb.acme.dnsCredentials (age files holding the DNS API credentials the cert's zone needs — for Cloudflare, CLOUDFLARE_API_KEY + CLOUDFLARE_EMAIL or a scoped CLOUDFLARE_DNS_API_TOKEN).";
+        }
+        {
+          assertion = !haveTlsVhosts || hasAgenix;
+          message = "cfg.localweb.vhosts.*.tls requires agenix on the host (the DNS token rides in an age file).";
         }
       ];
     }

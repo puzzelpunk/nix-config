@@ -16,6 +16,45 @@ with lib;
       '';
     };
 
+    # ── ACME: DNS-01 certificates for TLS vhosts ────────────────────────────
+    acme = mkOption {
+      type = types.submodule {
+        options = {
+          dnsProvider = mkOption {
+            type = types.str;
+            default = "cloudflare";
+            description = ''
+              lego DNS provider id used for ACME DNS-01 challenges (the
+              security.acme.certs dnsProvider value). "cloudflare" covers any
+              zone with DNS on Cloudflare, including the internal
+              "*.lan.<domain>" names (they live in the real zone's TXT space).
+            '';
+          };
+          dnsCredentials = mkOption {
+            type = types.attrsOf types.path;
+            default = { };
+            example = literalExpression ''
+              {
+                CLOUDFLARE_DNS_API_TOKEN = ./secrets/dns-token.age;
+              }
+            '';
+            description = ''
+              DNS API credentials for answering DNS-01 challenges, keyed by
+              the env var name lego's DNS provider expects. The module
+              declares each value as an age secret and assembles
+              KEY=value lines into the env-style credential file lego reads
+              at issuance and renewal. For cloudflare: a scoped API token
+              maps to CLOUDFLARE_DNS_API_TOKEN, the global key to
+              CLOUDFLARE_API_KEY + CLOUDFLARE_EMAIL. Empty = no TLS vhost
+              may be declared on this host.
+            '';
+          };
+        };
+      };
+      default = { };
+      description = "ACME/DNS-01 settings for the TLS vhost registry.";
+    };
+
     vhosts = mkOption {
       type = types.attrsOf (
         types.submodule {
@@ -130,6 +169,21 @@ with lib;
                 overriding the recommendedProxySettings Connection "" that
                 would otherwise prevent WebSocket upgrades. Set to true for
                 apps that use WebSockets (e.g. chat, live dashboards).
+              '';
+            };
+
+            tls = mkOption {
+              type = types.bool;
+              default = false;
+              description = ''
+                Terminate TLS with an ACME-issued certificate for this vhost's
+                server_name. Requires cfg.localweb.acme.dnsCredentialFile (an
+                age file containing a DNS API token for the zone). nginx
+                serves :443 ssl and the :80 vhost 301s to https; the backend
+                still receives plain http with X-Forwarded-Proto=https.
+                Apps whose prod-mode cookies are forced Secure (outline)
+                require this. The cert is publicly trusted (Let's Encrypt
+                via DNS-01), so no CA distribution is needed on clients.
               '';
             };
           };
